@@ -1,26 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Serif families exposed as Tailwind utilities */
+  --font-serif: var(--font-serif-devanagari), var(--font-serif-latin), Georgia, "Times New Roman", serif;
+  --font-serif-en: var(--font-serif-latin), Georgia, "Times New Roman", serif;
+
+  /* Custom spiritual/warm palette layered on top of Tailwind's neutrals */
+  --color-saffron-50: oklch(0.98 0.02 65);
+  --color-saffron-100: oklch(0.94 0.06 65);
+  --color-saffron-200: oklch(0.88 0.12 65);
+  --color-saffron-400: oklch(0.75 0.18 55);
+  --color-saffron-500: oklch(0.66 0.20 50);
+  --color-saffron-700: oklch(0.50 0.18 45);
+  --color-saffron-900: oklch(0.30 0.10 40);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Optical smoothing for text-heavy pages */
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Give Devanagari text a slightly taller line height — script needs vertical room */
+:lang(hi), [lang="hi"] {
+  line-height: 1.7;
 }
