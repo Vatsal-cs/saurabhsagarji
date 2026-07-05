@@ -47,13 +47,51 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        <div className="rounded-lg border border-neutral-200 bg-white p-8 shadow-sm">
-          <p className="text-sm text-neutral-600">
-            Content management interface coming soon. This will be where you create and edit
-            bhajans, teachings, books, events, and site content.
-          </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+            <AdminNavCard href="/prabhat-gate/books" title="Books" description="Manage published books." />
+            <AdminNavCard href="#" title="Bhajans" description="Coming soon." disabled />
+            <AdminNavCard href="#" title="Teachings" description="Coming soon." disabled />
+            <AdminNavCard href="#" title="Events" description="Coming soon." disabled />
+            <AdminNavCard href="#" title="Gallery" description="Coming soon." disabled />
+            <AdminNavCard href="#" title="Site content" description="Coming soon." disabled />
         </div>
       </div>
     </div>
   );
+
 }
+function AdminNavCard({
+    href,
+    title,
+    description,
+    disabled,
+  }: {
+    href: string;
+    title: string;
+    description: string;
+    disabled?: boolean;
+  }) {
+    const className =
+      'block rounded-lg border p-6 transition-colors ' +
+      (disabled
+        ? 'cursor-not-allowed border-neutral-200 bg-neutral-50 text-neutral-400'
+        : 'border-neutral-200 bg-white text-neutral-900 hover:border-saffron-400');
+  
+    const content = (
+      <>
+        <div className="font-serif text-lg">{title}</div>
+        <p className="mt-1 text-sm text-neutral-500">{description}</p>
+      </>
+    );
+  
+    if (disabled) {
+      return <div className={className}>{content}</div>;
+    }
+  
+    return (
+      <a href={href} className={className}>
+        {content}
+      </a>
+    );
+  }
+  

@@ -2,14 +2,14 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
-import { getPublishedBookBySlug, getPublishedBooks } from '@/lib/books';
+import { getPublishedBookBySlug, getPublishedBooks, getPublishedBooksStatic } from '@/lib/books';
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
-  const books = await getPublishedBooks();
+  const books = await getPublishedBooksStatic();
   return books.map((book) => ({ slug: book.slug }));
 }
 
@@ -83,8 +83,16 @@ export default async function BookDetailPage({ params }: Props) {
             )}
 
             <div className="mt-10 flex flex-wrap gap-3">
+              {book.pdf_url && (
+                <Link
+                  href={`/books/${book.slug}/read`}
+                  className="rounded-md bg-saffron-500 px-5 py-2 text-sm text-white transition-colors hover:bg-saffron-700"
+                >
+                  पढ़ें / Read
+                </Link>
+              )}
               {book.purchase_url && (
-                 <a
+                <a
                   href={book.purchase_url}
                   target="_blank"
                   rel="noopener noreferrer"

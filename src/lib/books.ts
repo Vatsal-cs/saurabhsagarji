@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
+import { createStaticClient } from '@/lib/supabase/static';
 
 /**
  * Row shape from the `books` table.
@@ -24,6 +25,7 @@ export type PublicBook = {
   purchase_url: string | null;
   download_url: string | null;
   preview_pdf_url: string | null;
+  pdf_url: string | null;
   publication_year: number | null;
   published_at: string | null;
 };
@@ -40,6 +42,7 @@ function toPublicBook(row: Book): PublicBook {
     purchase_url: row.purchase_url,
     download_url: row.download_url,
     preview_pdf_url: row.preview_pdf_url,
+    pdf_url: row.pdf_url,
     publication_year: row.publication_year,
     published_at: row.published_at,
   };
@@ -69,6 +72,27 @@ export async function getPublishedBooks(): Promise<PublicBook[]> {
 }
 
 /**
+ * Build-time variant of getPublishedBooks that doesn't touch cookies.
+ * Use ONLY from generateStaticParams, sitemap, or similar build-only paths.
+ */
+
+export async function getPublishedBooksStatic(): Promise<PublicBook[]> {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false });
+  
+    if (error) {
+      console.error('[getPublishedBooksStatic]', error);
+      return [];
+    }
+  
+    return (data ?? []).map(toPublicBook);
+}
+
+/**
  * Fetch a single published book by slug.
  * Returns null if not found (used for the detail page 404).
  */
@@ -89,4 +113,66 @@ export async function getPublishedBookBySlug(
   }
 
   return data ? toPublicBook(data) : null;
+}
+
+/**
+ * Fetch ALL books, published or draft, for admin views.
+ * RLS policy allows this only if the caller is_admin().
+ * If a non-admin somehow calls this, they get an empty list (no error).
+ */
+export async function getAllBooksForAdmin(): Promise<Book[]> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .order('updated_at', { ascending: false });
+  
+    if (error) {
+      console.error('[getAllBooksForAdmin]', error);
+      return [];
+    }
+    return data ?? [];
+  }
+  
+  /**
+   * Fetch a single book by id, published or draft, for admin edit views.
+   */
+  export async function getBookByIdForAdmin(id: string): Promise<Book | null> {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+  
+    if (error) {
+      console.error('[getBookByIdForAdmin]', error);
+      return null;
+    }
+    return data;
+  }
+
+/**
+ * Generate a short-lived signed URL for a private PDF in book-pdfs bucket.
+ * Called at read time. URL expires after the given seconds (default 1 hour).
+ *
+ * If pdfPath is already a full URL (e.g. externally hosted), returns it unchanged.
+ */
+export async function getSignedPdfUrl(
+  pdfPath: string,
+  expiresInSeconds = 3600
+): Promise<string | null> {
+  if (pdfPath.startsWith('http')) return pdfPath;
+
+  const { createServiceClient } = await import('@/lib/supabase/static');
+  const supabase = createServiceClient();
+  const { data, error } = await supabase.storage
+    .from('book-pdfs')
+    .createSignedUrl(pdfPath, expiresInSeconds);
+
+  if (error) {
+    console.error('[getSignedPdfUrl]', error);
+    return null;
+  }
+  return data.signedUrl;
 }

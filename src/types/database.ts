@@ -152,6 +152,7 @@ export type Database = {
           download_url: string | null
           id: string
           is_published: boolean
+          pdf_url: string | null
           preview_pdf_url: string | null
           publication_year: number | null
           published_at: string | null
@@ -171,6 +172,7 @@ export type Database = {
           download_url?: string | null
           id?: string
           is_published?: boolean
+          pdf_url?: string | null
           preview_pdf_url?: string | null
           publication_year?: number | null
           published_at?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           download_url?: string | null
           id?: string
           is_published?: boolean
+          pdf_url?: string | null
           preview_pdf_url?: string | null
           publication_year?: number | null
           published_at?: string | null
