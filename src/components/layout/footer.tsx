@@ -1,10 +1,14 @@
 import { Container } from '@/components/ui/container';
 import { getSiteContentBatch } from '@/lib/site-content';
+import { getLanguage } from '@/lib/language';
+import { t } from '@/lib/translations';
 
 export async function Footer() {
-  const c = await getSiteContentBatch(['site_name', 'footer_copyright']);
+  const lang = await getLanguage();
+  const c = await getSiteContentBatch(['site_name', 'footer_copyright'], lang);
   const year = new Date().getFullYear();
   const copyright = c.footer_copyright.replace('{year}', String(year));
+
   return (
     <footer className="mt-24 bg-crimson-900 text-ivory/80">
       <Container>
@@ -15,7 +19,7 @@ export async function Footer() {
             <span className="h-px w-12 bg-gold-500/50" />
           </div>
           <p className="font-serif text-xl text-ivory">{c.site_name}</p>
-          <p className="font-serif text-sm text-gold-400">सत्य • अहिंसा • अपरिग्रह</p>
+          <p className="font-serif text-sm text-gold-400">{t('footer_tagline', lang)}</p>
         </div>
         <div className="border-t border-gold-500/20 py-6 text-center text-xs text-ivory/50">
           {copyright}

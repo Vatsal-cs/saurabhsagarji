@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 
 export function BookReader({ pdfUrl, title }: { pdfUrl: string; title: string }) {
-  const [zoomMode, setZoomMode] = useState<'page-fit' | 'page-width'>('page-width');
+  const [zoomMode, setZoomMode] = useState<'page-fit' | 'auto'>('auto');
 
   useEffect(() => {
     function pickZoom() {
       const isLandscape = window.innerWidth > window.innerHeight;
       const isMobile = Math.min(window.innerWidth, window.innerHeight) < 768;
       // Landscape phone: fit whole page on screen. Everything else: fit width.
-      setZoomMode(isMobile && isLandscape ? 'page-fit' : 'page-width');
+      setZoomMode(isMobile && isLandscape ? 'page-fit' : 'auto');
     }
     pickZoom();
     window.addEventListener('resize', pickZoom);

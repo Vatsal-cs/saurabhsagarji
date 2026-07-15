@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { getSiteContentBatch } from '@/lib/site-content';
+import { getLanguage } from '@/lib/language';
+import { t } from '@/lib/translations';
 import { Reveal } from '@/components/ui/reveal';
 
 const HOME_KEYS = [
@@ -12,7 +14,8 @@ const HOME_KEYS = [
 ] as const;
 
 export async function generateMetadata() {
-  const content = await getSiteContentBatch(['site_name', 'site_tagline']);
+  const lang = await getLanguage();
+  const content = await getSiteContentBatch(['site_name', 'site_tagline'], lang);
   return {
     title: `${content.site_name} — ${content.site_tagline}`,
     description: content.site_tagline,
@@ -23,20 +26,21 @@ function Ornament({ className = '' }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`} aria-hidden="true">
       <span className="h-px w-16 bg-gradient-to-r from-transparent to-gold-500" />
-      <span className="text-gold-500 text-lg leading-none">❉</span>
+      <span className="text-gold-500 text-lg leading-none">❁</span>
       <span className="h-px w-16 bg-gradient-to-l from-transparent to-gold-500" />
     </div>
   );
 }
 
 export default async function HomePage() {
-  const content = await getSiteContentBatch(HOME_KEYS);
+  const lang = await getLanguage();
+  const content = await getSiteContentBatch(HOME_KEYS, lang);
 
   const cards = [
-    { href: '/books', hi: 'पुस्तकें', en: 'Sacred Books', glyph: '📖', desc: 'Guruji’s writings on spirituality, devotion, and the path to liberation.' },
-    { href: '/teachings', hi: 'प्रवचन', en: 'Discourses', glyph: '☸', desc: 'Recorded pravachans and spiritual guidance for daily life.' },
-    { href: '/bhajans', hi: 'भजन', en: 'Devotional Songs', glyph: '🙏', desc: 'Bhajans and hymns to nourish the heart and still the mind.' },
-  ];
+    { href: '/books', titleKey: 'card_books_title', descKey: 'card_books_desc', glyph: '📖' },
+    { href: '/teachings', titleKey: 'card_teachings_title', descKey: 'card_teachings_desc', glyph: '☸' },
+    { href: '/bhajans', titleKey: 'card_bhajans_title', descKey: 'card_bhajans_desc', glyph: '🙏' },
+  ] as const;
 
   return (
     <main className="bg-ivory text-ink">
@@ -54,10 +58,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4 md:justify-start">
               <Link href="/books" className="rounded-full bg-crimson-800 px-7 py-3 text-sm font-medium tracking-wide text-ivory shadow-lg shadow-crimson-900/20 transition-all hover:bg-crimson-900 hover:shadow-xl hover:-translate-y-0.5">
-                पुस्तकें / Books
+                {t('home_cta_books', lang)}
               </Link>
               <Link href="/teachings" className="rounded-full border border-gold-500 px-7 py-3 text-sm font-medium tracking-wide text-crimson-800 transition-all hover:bg-gold-400/10 hover:-translate-y-0.5">
-                प्रवचन / Teachings
+                {t('home_cta_teachings', lang)}
               </Link>
             </div>
           </div>
@@ -66,14 +70,14 @@ export default async function HomePage() {
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
                 <span className="text-6xl text-gold-500/60 animate-pulse">☸</span>
                 <p className="px-6 font-serif text-lg text-ink/40">
-                  गुरुदेव का चित्र
-                  <span className="mt-1 block font-serif-en text-sm">Portrait coming soon</span>
+                  {t('home_portrait_alt', lang)}
+                  <span className="mt-1 block font-serif-en text-sm">{t('home_portrait_soon', lang)}</span>
                 </p>
               </div>
-              <span className="pointer-events-none absolute left-3 top-3 text-gold-500/70">❉</span>
-              <span className="pointer-events-none absolute right-3 top-3 text-gold-500/70">❉</span>
-              <span className="pointer-events-none absolute bottom-3 left-3 text-gold-500/70">❉</span>
-              <span className="pointer-events-none absolute bottom-3 right-3 text-gold-500/70">❉</span>
+              <span className="pointer-events-none absolute left-3 top-3 text-gold-500/70">❁</span>
+              <span className="pointer-events-none absolute right-3 top-3 text-gold-500/70">❁</span>
+              <span className="pointer-events-none absolute bottom-3 left-3 text-gold-500/70">❁</span>
+              <span className="pointer-events-none absolute bottom-3 right-3 text-gold-500/70">❁</span>
             </div>
           </div>
         </div>
@@ -99,7 +103,7 @@ export default async function HomePage() {
               {content.home_welcome_body}
             </p>
             <Link href="/about" className="mt-6 inline-block font-serif-en text-crimson-800 underline decoration-gold-500 decoration-2 underline-offset-4 hover:text-crimson-900">
-              परिचय पढ़ें / Read more →
+              {t('home_read_more', lang)} →
             </Link>
           </div>
         </Reveal>
@@ -110,8 +114,10 @@ export default async function HomePage() {
           <Reveal>
             <Ornament className="mb-4" />
             <h2 className="text-center font-serif text-3xl text-crimson-800 sm:text-4xl">
-              दर्शन करें
-              <span className="mt-1 block font-serif-en text-base font-normal text-ink/50">Explore the teachings</span>
+              {t('home_explore_heading', lang)}
+              <span className="mt-1 block font-serif-en text-base font-normal text-ink/50">
+                {t('home_explore_subtitle', lang)}
+              </span>
             </h2>
           </Reveal>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -119,10 +125,11 @@ export default async function HomePage() {
               <Reveal key={card.href} delay={i * 120}>
                 <Link href={card.href} className="group relative block h-full overflow-hidden rounded-2xl border border-gold-500/40 bg-ivory p-8 transition-all hover:border-gold-500 hover:shadow-xl hover:-translate-y-1">
                   <span className="text-4xl">{card.glyph}</span>
-                  <h3 className="mt-5 font-serif text-2xl text-crimson-800">{card.hi}</h3>
-                  <p className="font-serif-en text-sm uppercase tracking-widest text-gold-600">{card.en}</p>
-                  <p className="mt-4 font-serif-en text-base leading-relaxed text-ink/70">{card.desc}</p>
-                  <span className="mt-6 inline-block font-serif-en text-sm text-crimson-800 transition-transform group-hover:translate-x-1">दर्शन करें →</span>
+                  <h3 className="mt-5 font-serif text-2xl text-crimson-800">{t(card.titleKey, lang)}</h3>
+                  <p className="mt-4 font-serif-en text-base leading-relaxed text-ink/70">{t(card.descKey, lang)}</p>
+                  <span className="mt-6 inline-block font-serif-en text-sm text-crimson-800 transition-transform group-hover:translate-x-1">
+                    {t('card_explore_cta', lang)} →
+                  </span>
                 </Link>
               </Reveal>
             ))}

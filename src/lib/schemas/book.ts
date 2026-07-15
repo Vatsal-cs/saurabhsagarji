@@ -1,21 +1,11 @@
 import { z } from 'zod';
 
-/**
- * Reusable slug pattern.
- * Lowercase letters, numbers, hyphens; no spaces or special chars.
- * Matches how we want URLs to look: /books/shanti-ka-marg.
- */
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
- * The canonical Book input schema.
- * Used by:
- * - Server Actions (validate incoming form data)
- * - Client form (infer form state type, drive input validation)
- *
- * Design note: many fields are optional/nullable because a book might be a
- * work-in-progress draft. The published/unpublished distinction is handled
- * separately, not by requiring all fields.
+ * Canonical Book input schema. Trimmed to essentials:
+ * slug, titles, descriptions, year, cover, pdf, publish flag.
+ * cover_image_url is required (a book must have a cover).
  */
 export const bookInputSchema = z.object({
   slug: z
@@ -47,6 +37,9 @@ export const bookInputSchema = z.object({
     .optional()
     .or(z.literal('').transform(() => undefined)),
 
+  // Cover URL is filled server-side after upload. Optional in the schema
+  // because the form sends the file, not the URL — the action enforces
+  // that a cover exists (either newly uploaded or already on the book).
   cover_image_url: z
     .string()
     .url('Must be a valid URL')
@@ -56,19 +49,7 @@ export const bookInputSchema = z.object({
   pdf_url: z
     .string()
     .max(500)
-    .optional()
-    .or(z.literal('').transform(() => undefined)),  
-
-  purchase_url: z
-    .string()
-    .url('Must be a valid URL')
-    .optional()
-    .or(z.literal('').transform(() => undefined)),
-
-  download_url: z
-    .string()
-    .url('Must be a valid URL')
-    .optional()
+    .nullish()
     .or(z.literal('').transform(() => undefined)),
 
   publication_year: z
@@ -78,14 +59,7 @@ export const bookInputSchema = z.object({
     .max(new Date().getFullYear() + 1, 'Year is in the future')
     .optional(),
 
-  preview_pdf_url: z
-    .string()
-    .url('Must be a valid URL')
-    .optional()
-    .or(z.literal('').transform(() => undefined)),
-
   is_published: z.boolean().default(false),
 });
 
 export type BookInput = z.infer<typeof bookInputSchema>;
-

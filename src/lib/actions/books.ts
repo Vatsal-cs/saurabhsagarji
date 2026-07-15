@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { bookInputSchema, type BookInput } from '@/lib/schemas/book';
-import { generateCoverFromPdf } from '@/lib/pdf-cover';
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -46,36 +45,48 @@ function formDataToBookInput(formData: FormData): unknown {
     title_en: formData.get('title_en'),
     description_hi: formData.get('description_hi'),
     description_en: formData.get('description_en'),
-    cover_image_url: formData.get('cover_image_url'),
-    preview_pdf_url: formData.get('preview_pdf_url'),
-    pdf_url: formData.get('pdf_url'),
-    purchase_url: formData.get('purchase_url'),
-    download_url: formData.get('download_url'),
     publication_year:
       yearRaw && String(yearRaw).trim() !== '' ? Number(yearRaw) : undefined,
     is_published: formData.get('is_published') === 'on',
   };
 }
 
+async function uploadCover(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  file: File,
+  slug: string
+): Promise<string> {
+  if (file.size > 5 * 1024 * 1024) throw new Error('Cover image must be under 5 MB');
+  if (!file.type.startsWith('image/')) throw new Error('Cover must be an image file');
+
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
+  const path = `${slug}-cover-${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('book-covers')
+    .upload(path, file, { cacheControl: '3600', upsert: false });
+
+  if (error) throw new Error(`Cover upload failed: ${error.message}`);
+
+  const { data } = supabase.storage.from('book-covers').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function uploadPdf(
   supabase: Awaited<ReturnType<typeof createClient>>,
   file: File,
   slug: string
-): Promise<{ pdfPath: string; coverUrl: string | null }> {
+): Promise<string> {
   if (file.size > 50 * 1024 * 1024) throw new Error('PDF must be under 50 MB');
   if (file.type !== 'application/pdf') throw new Error('File must be a PDF');
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
   const path = `${slug}-${Date.now()}.pdf`;
-
   const { error } = await supabase.storage
     .from('book-pdfs')
     .upload(path, file, { contentType: 'application/pdf', upsert: false });
 
   if (error) throw new Error(`PDF upload failed: ${error.message}`);
-
-  const coverUrl = await generateCoverFromPdf(bytes, slug);
-  return { pdfPath: path, coverUrl };
+  return path;
 }
 
 export async function createBook(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
@@ -87,18 +98,27 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
   }
 
   const values = parsed.data;
-  let coverUrl = values.cover_image_url ?? null;
-  let pdfPath = values.pdf_url ?? null;
+  let coverUrl: string | null = null;
+  let pdfPath: string | null = null;
 
   try {
+    const coverFile = formData.get('cover_image_file') as File | null;
+    if (coverFile && coverFile.size > 0) {
+      coverUrl = await uploadCover(supabase, coverFile, values.slug);
+    }
     const pdfFile = formData.get('pdf_file') as File | null;
     if (pdfFile && pdfFile.size > 0) {
-      const result = await uploadPdf(supabase, pdfFile, values.slug);
-      pdfPath = result.pdfPath;
-      if (result.coverUrl) coverUrl = result.coverUrl;
+      pdfPath = await uploadPdf(supabase, pdfFile, values.slug);
     }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Upload failed' };
+  }
+
+  if (!coverUrl) {
+    return { ok: false, error: 'A cover image is required.', fieldErrors: { cover_image_url: 'Please upload a cover image.' } };
+  }
+  if (!pdfPath) {
+    return { ok: false, error: 'A book PDF is required.', fieldErrors: { pdf_url: 'Please upload the book PDF.' } };
   }
 
   const { data, error } = await supabase
@@ -110,10 +130,7 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
       description_hi: values.description_hi ?? null,
       description_en: values.description_en ?? null,
       cover_image_url: coverUrl,
-      preview_pdf_url: values.preview_pdf_url ?? null,
       pdf_url: pdfPath,
-      purchase_url: values.purchase_url ?? null,
-      download_url: values.download_url ?? null,
       publication_year: values.publication_year ?? null,
       is_published: values.is_published,
       published_at: values.is_published ? new Date().toISOString() : null,
@@ -160,14 +177,20 @@ export async function updateBook(
   let pdfPath = existing.pdf_url;
 
   try {
+    const coverFile = formData.get('cover_image_file') as File | null;
+    if (coverFile && coverFile.size > 0) {
+      coverUrl = await uploadCover(supabase, coverFile, values.slug);
+    }
     const pdfFile = formData.get('pdf_file') as File | null;
     if (pdfFile && pdfFile.size > 0) {
-      const result = await uploadPdf(supabase, pdfFile, values.slug);
-      pdfPath = result.pdfPath;
-      if (result.coverUrl) coverUrl = result.coverUrl;
+      pdfPath = await uploadPdf(supabase, pdfFile, values.slug);
     }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Upload failed' };
+  }
+
+  if (!coverUrl) {
+    return { ok: false, error: 'A cover image is required.', fieldErrors: { cover_image_url: 'Please upload a cover image.' } };
   }
 
   const nowPublishing = values.is_published && !existing.is_published;
@@ -181,10 +204,7 @@ export async function updateBook(
       description_hi: values.description_hi ?? null,
       description_en: values.description_en ?? null,
       cover_image_url: coverUrl,
-      preview_pdf_url: values.preview_pdf_url ?? null,
       pdf_url: pdfPath,
-      purchase_url: values.purchase_url ?? null,
-      download_url: values.download_url ?? null,
       publication_year: values.publication_year ?? null,
       is_published: values.is_published,
       published_at: nowPublishing ? new Date().toISOString() : existing.published_at,

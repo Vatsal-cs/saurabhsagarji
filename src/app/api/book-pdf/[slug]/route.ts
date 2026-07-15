@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublishedBookBySlug, getSignedPdfUrl } from '@/lib/books';
 
+function slugToFilename(slug: string, titleEn: string | null): string {
+  const base = (titleEn ?? slug)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${base || slug}.pdf`;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -15,6 +23,8 @@ export async function GET(
   if (!signedUrl) {
     return new NextResponse('Could not sign URL', { status: 500 });
   }
+
+  const wantsDownload = req.nextUrl.searchParams.get('download') === '1';
 
   const upstream = await fetch(signedUrl, {
     headers: {
@@ -34,7 +44,15 @@ export async function GET(
   if (range) headers.set('Content-Range', range);
   const acceptRanges = upstream.headers.get('accept-ranges');
   if (acceptRanges) headers.set('Accept-Ranges', acceptRanges);
-  headers.set('Cache-Control', 'private, max-age=3600');
+
+  if (wantsDownload) {
+    const filename = slugToFilename(slug, book.title_en);
+    headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+    headers.set('Cache-Control', 'private, max-age=0');
+  } else {
+    headers.set('Content-Disposition', 'inline');
+    headers.set('Cache-Control', 'private, max-age=3600');
+  }
 
   return new NextResponse(upstream.body, {
     status: upstream.status,
