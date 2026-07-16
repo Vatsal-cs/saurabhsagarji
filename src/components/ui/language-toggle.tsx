@@ -1,18 +1,19 @@
 'use client';
 
+import { useLocale } from 'next-intl';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import { useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { setLanguage, type Language } from '@/lib/language';
 
-export function LanguageToggle({ current }: { current: Language }) {
+export function LanguageToggle() {
+  const locale = useLocale();
+  const pathname = usePathname();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  function switchTo(lang: Language) {
-    if (lang === current || pending) return;
-    startTransition(async () => {
-      await setLanguage(lang);
-      router.refresh();
+  function switchTo(target: 'hi' | 'en') {
+    if (target === locale || pending) return;
+    startTransition(() => {
+      router.replace(pathname, { locale: target });
     });
   }
 
@@ -25,10 +26,10 @@ export function LanguageToggle({ current }: { current: Language }) {
       <button
         onClick={() => switchTo('hi')}
         disabled={pending}
-        aria-pressed={current === 'hi'}
+        aria-pressed={locale === 'hi'}
         className={
           'flex h-9 w-9 items-center justify-center rounded-full font-serif text-base transition-colors ' +
-          (current === 'hi' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
+          (locale === 'hi' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
         }
       >
         अ
@@ -36,10 +37,10 @@ export function LanguageToggle({ current }: { current: Language }) {
       <button
         onClick={() => switchTo('en')}
         disabled={pending}
-        aria-pressed={current === 'en'}
+        aria-pressed={locale === 'en'}
         className={
           'flex h-9 w-9 items-center justify-center rounded-full font-serif-en text-sm transition-colors ' +
-          (current === 'en' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
+          (locale === 'en' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
         }
       >
         Aa

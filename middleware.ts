@@ -1,10 +1,32 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from '@/i18n/routing';
+
+const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  });
+  const pathname = request.nextUrl.pathname;
+
+  const isUnlocalized =
+    pathname.startsWith('/prabhat-gate') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/auth');
+
+  // Only admin + auth routes actually need a fresh Supabase session on
+  // every request. Public pages (home, books, about, etc.) don't gate
+  // on login, so skip the auth round-trip there entirely — this avoids
+  // hammering Supabase's auth rate limit under normal traffic.
+  const needsAuthRefresh =
+    pathname.startsWith('/prabhat-gate') || pathname.startsWith('/auth');
+
+  const baseResponse = isUnlocalized
+    ? NextResponse.next({ request })
+    : intlMiddleware(request);
+
+  if (!needsAuthRefresh) {
+    return baseResponse;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,14 +37,8 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            baseResponse.cookies.set(name, value, options)
           );
         },
       },
@@ -30,22 +46,13 @@ export async function middleware(request: NextRequest) {
   );
 
   // IMPORTANT: getUser() refreshes the auth token if needed.
-  // Do not run any other Supabase code between createServerClient and getUser
-  // in middleware, or session refresh may fail silently.
   await supabase.auth.getUser();
 
-  return response;
+  return baseResponse;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - Public files with common image/font extensions
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next|_vercel|.*\\..*).*)',
   ],
 };

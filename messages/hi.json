@@ -1,0 +1,64 @@
+{
+  "Nav": {
+    "home": "मुख्य",
+    "about": "परिचय",
+    "bhajans": "भजन",
+    "teachings": "प्रवचन",
+    "books": "पुस्तकें",
+    "events": "कार्यक्रम",
+    "gallery": "चित्र",
+    "contact": "संपर्क"
+  },
+  "Footer": {
+    "tagline": "सत्य • अहिंसा • अपरिग्रह"
+  },
+  "Home": {
+    "ctaBooks": "पुस्तकें",
+    "ctaTeachings": "प्रवचन",
+    "portraitAlt": "गुरुदेव का चित्र",
+    "portraitSoon": "शीघ्र प्रकाशित होगा",
+    "readMore": "और पढ़ें",
+    "exploreHeading": "दर्शन करें",
+    "exploreSubtitle": "शिक्षाओं को जानें"
+  },
+  "Cards": {
+    "booksTitle": "पुस्तकें",
+    "booksDesc": "गुरुजी की आध्यात्मिकता, भक्ति और मोक्ष मार्ग पर लेखनी।",
+    "teachingsTitle": "प्रवचन",
+    "teachingsDesc": "दैनिक जीवन के लिए रिकॉर्ड किए गए प्रवचन और मार्गदर्शन।",
+    "bhajansTitle": "भजन",
+    "bhajansDesc": "हृदय को पोषित करने वाले भजन।",
+    "exploreCta": "दर्शन करें"
+  },
+  "Books": {
+    "eyebrow": "पुस्तकें",
+    "heading": "गुरुजी की पुस्तकें",
+    "subtitle": "गुरुजी की आध्यात्मिक, भक्ति एवं शांति संबंधी रचनाएं देखें।",
+    "emptyTitle": "कोई पुस्तक उपलब्ध नहीं है",
+    "emptyBody": "जल्द ही पुस्तकें जोड़ी जाएंगी।",
+    "allBooks": "पुस्तकें"
+  },
+  "BookDetail": {
+    "read": "पढ़ें",
+    "download": "डाउनलोड",
+    "purchase": "खरीदें",
+    "published": "प्रकाशित {year}"
+  },
+  "ComingSoon": {
+    "eyebrow": "जल्द आ रहा है",
+    "bhajans": "भजन",
+    "teachings": "प्रवचन",
+    "events": "कार्यक्रम",
+    "gallery": "चित्र",
+    "contact": "संपर्क"
+  },
+  "NotFound": {
+    "title": "पृष्ठ नहीं मिला",
+    "body": "जिस पृष्ठ को आप खोज रहे हैं वह नहीं मिला।",
+    "backHome": "मुख्य पृष्ठ पर वापस जाएं"
+  },
+  "About": {
+    "mission": "मिशन",
+    "philosophy": "दर्शन"
+  }
+}

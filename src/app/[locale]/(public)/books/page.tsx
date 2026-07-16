@@ -1,52 +1,61 @@
-import Link from 'next/link';
-import { Container } from '@/components/ui/container';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { getPublishedBooks } from '@/lib/books';
 import { Reveal } from '@/components/ui/reveal';
 
 export const metadata = { title: 'Books' };
 
-export default async function BooksPage() {
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function BooksPage({ params }: Props) {
+  const { locale } = await params;
   const books = await getPublishedBooks();
+  const t = await getTranslations({ locale, namespace: 'Books' });
+  const tDetail = await getTranslations({ locale, namespace: 'BookDetail' });
 
   return (
     <main className="bg-ivory">
-      <Container>
+      <div className="mx-auto w-full max-w-6xl px-6 sm:px-8">
         <div className="py-16 sm:py-20">
           <Reveal className="mx-auto max-w-2xl text-center">
             <p className="font-serif text-sm uppercase tracking-[0.25em] text-gold-600">
-              पुस्तकें · Books
+              {t('eyebrow')}
             </p>
             <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-crimson-800 sm:text-5xl">
-              गुरुजी की पुस्तकें
+              {t('heading')}
             </h1>
             <div className="mt-5 flex items-center justify-center gap-3" aria-hidden="true">
               <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold-500" />
               <span className="text-gold-500">❁</span>
               <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold-500" />
             </div>
-            <p className="mx-auto mt-5 max-w-lg text-neutral-600">
-              Explore Guruji&rsquo;s writings on spirituality, devotion, and inner peace.
-            </p>
+            <p className="mx-auto mt-5 max-w-lg text-neutral-600">{t('subtitle')}</p>
           </Reveal>
 
           {books.length === 0 ? (
-            <EmptyState />
+            <EmptyState title={t('emptyTitle')} body={t('emptyBody')} />
           ) : (
             <div className="mx-auto mt-14 grid max-w-6xl grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-10 lg:gap-y-16 xl:grid-cols-5">
               {books.map((book, i) => (
                 <Reveal key={book.id} delay={(i % 4) * 90}>
-                  <BookCard book={book} />
+                  <BookCard book={book} readLabel={tDetail('read')} />
                 </Reveal>
               ))}
             </div>
           )}
         </div>
-      </Container>
+      </div>
     </main>
   );
 }
 
-function BookCard({ book }: { book: Awaited<ReturnType<typeof getPublishedBooks>>[number] }) {
+function BookCard({
+  book,
+  readLabel,
+}: {
+  book: Awaited<ReturnType<typeof getPublishedBooks>>[number];
+  readLabel: string;
+}) {
   return (
     <Link href={`/books/${book.slug}`} className="group block">
       <div className="relative overflow-hidden rounded-xl bg-neutral-100 shadow-md ring-1 ring-black/5 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl">
@@ -71,7 +80,7 @@ function BookCard({ book }: { book: Awaited<ReturnType<typeof getPublishedBooks>
 
         <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/55 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <span className="mb-4 rounded-full bg-ivory/95 px-4 py-1.5 text-xs font-medium text-crimson-800 shadow-sm">
-            पढ़ें / Read
+            {readLabel}
           </span>
         </div>
 
@@ -96,14 +105,14 @@ function BookCard({ book }: { book: Awaited<ReturnType<typeof getPublishedBooks>
   );
 }
 
-function EmptyState() {
+function EmptyState({ title, body }: { title: string; body: string }) {
   return (
     <div className="mx-auto mt-14 max-w-md rounded-2xl border border-dashed border-gold-500/40 bg-white/60 p-12 text-center">
       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gold-400/15 text-2xl">
         📖
       </div>
-      <p className="font-serif text-lg text-crimson-800">कोई पुस्तक उपलब्ध नहीं है</p>
-      <p className="mt-1 text-sm text-neutral-500">No books available yet.</p>
+      <p className="font-serif text-lg text-crimson-800">{title}</p>
+      <p className="mt-1 text-sm text-neutral-500">{body}</p>
     </div>
   );
 }

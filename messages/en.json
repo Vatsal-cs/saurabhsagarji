@@ -1,0 +1,64 @@
+{
+  "Nav": {
+    "home": "Home",
+    "about": "About",
+    "bhajans": "Bhajans",
+    "teachings": "Teachings",
+    "books": "Books",
+    "events": "Events",
+    "gallery": "Gallery",
+    "contact": "Contact"
+  },
+  "Footer": {
+    "tagline": "Truth • Non-violence • Non-attachment"
+  },
+  "Home": {
+    "ctaBooks": "Books",
+    "ctaTeachings": "Teachings",
+    "portraitAlt": "Guruji's Portrait",
+    "portraitSoon": "Portrait coming soon",
+    "readMore": "Read more",
+    "exploreHeading": "Explore",
+    "exploreSubtitle": "Explore the teachings"
+  },
+  "Cards": {
+    "booksTitle": "Sacred Books",
+    "booksDesc": "Guruji's writings on spirituality, devotion, and the path to liberation.",
+    "teachingsTitle": "Discourses",
+    "teachingsDesc": "Recorded pravachans and spiritual guidance for daily life.",
+    "bhajansTitle": "Devotional Songs",
+    "bhajansDesc": "Bhajans and hymns to nourish the heart and still the mind.",
+    "exploreCta": "Explore"
+  },
+  "Books": {
+    "eyebrow": "Books",
+    "heading": "Guruji's Books",
+    "subtitle": "Explore Guruji's writings on spirituality, devotion, and inner peace.",
+    "emptyTitle": "No books available yet",
+    "emptyBody": "Books will be added soon.",
+    "allBooks": "All books"
+  },
+  "BookDetail": {
+    "read": "Read",
+    "download": "Download",
+    "purchase": "Purchase",
+    "published": "Published {year}"
+  },
+  "ComingSoon": {
+    "eyebrow": "Coming Soon",
+    "bhajans": "Bhajans",
+    "teachings": "Teachings",
+    "events": "Events",
+    "gallery": "Gallery",
+    "contact": "Contact"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for could not be found.",
+    "backHome": "Back to homepage"
+  },
+  "About": {
+    "mission": "Mission",
+    "philosophy": "Philosophy"
+  }
+}

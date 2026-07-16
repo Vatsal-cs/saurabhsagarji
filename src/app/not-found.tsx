@@ -1,28 +1,25 @@
 import Link from 'next/link';
-import { Container } from '@/components/ui/container';
 
 export const metadata = {
-  title: '404 — पृष्ठ नहीं मिला',
+  title: '404',
 };
 
 export default function NotFoundPage() {
   return (
-    <Container>
-      <div className="flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
-        <p className="font-serif text-6xl text-neutral-300">404</p>
-        <h1 className="mt-6 font-serif text-3xl tracking-tight text-neutral-900">
-          पृष्ठ नहीं मिला
-        </h1>
-        <p className="mt-2 text-neutral-600">
-          The page you are looking for could not be found.
-        </p>
-        <Link
-          href="/"
-          className="mt-8 rounded-md bg-neutral-900 px-5 py-2 text-sm text-white transition-colors hover:bg-neutral-800"
-        >
-          मुख्य पृष्ठ पर वापस जाएँ
-        </Link>
-      </div>
-    </Container>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-ivory px-6 text-center">
+      <p className="font-serif text-6xl text-neutral-300">404</p>
+      <h1 className="mt-6 font-serif text-3xl tracking-tight text-crimson-800">
+        पृष्ठ नहीं मिला / Page not found
+      </h1>
+      <p className="mt-2 text-neutral-600">
+        जिस पृष्ठ को आप खोज रहे हैं वह नहीं मिला।
+      </p>
+      <Link
+        href="/"
+        className="mt-8 rounded-full bg-crimson-800 px-6 py-2.5 text-sm text-white transition-colors hover:bg-crimson-900"
+      >
+        मुख्य पृष्ठ / Home
+      </Link>
+    </div>
   );
 }

@@ -1,16 +1,21 @@
+import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 
-export const metadata = { title: 'Gallery' };
+export const metadata = { title: 'events' };
 
-export default function GalleryPage() {
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function Page({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ComingSoon' });
   return (
     <Container>
       <div className="flex min-h-[60vh] flex-col items-center justify-center py-24 text-center">
         <p className="font-serif text-xs uppercase tracking-widest text-saffron-700">
-          जल्द आ रहा है · Coming Soon
+          {t('eyebrow')}
         </p>
         <h1 className="mt-4 font-serif text-4xl tracking-tight text-neutral-900 sm:text-5xl">
-          चित्र
+          {t('events')}
         </h1>
       </div>
     </Container>

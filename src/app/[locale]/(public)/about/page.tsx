@@ -1,5 +1,7 @@
+import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { getSiteContentBatch } from '@/lib/site-content';
+import type { Language } from '@/lib/site-content';
 
 const ABOUT_KEYS = [
   'about_page_heading',
@@ -12,8 +14,13 @@ export const metadata = {
   title: 'About',
 };
 
-export default async function AboutPage() {
-  const c = await getSiteContentBatch(ABOUT_KEYS);
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function AboutPage({ params }: Props) {
+  const { locale } = await params;
+  const lang = (locale === 'en' ? 'en' : 'hi') as Language;
+  const c = await getSiteContentBatch(ABOUT_KEYS, lang);
+  const t = await getTranslations({ locale, namespace: 'About' });
 
   return (
     <Container>
@@ -29,14 +36,14 @@ export default async function AboutPage() {
 
           <div className="border-l-2 border-saffron-400 pl-6">
             <h2 className="mb-2 font-serif text-sm uppercase tracking-widest text-neutral-500">
-              मिशन / Mission
+              {t('mission')}
             </h2>
             <p>{c.about_mission}</p>
           </div>
 
           <div className="border-l-2 border-saffron-400 pl-6">
             <h2 className="mb-2 font-serif text-sm uppercase tracking-widest text-neutral-500">
-              दर्शन / Philosophy
+              {t('philosophy')}
             </h2>
             <p>{c.about_philosophy}</p>
           </div>

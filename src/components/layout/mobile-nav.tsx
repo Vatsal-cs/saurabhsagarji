@@ -1,21 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 
-type NavItem = { href: string; label_hi: string };
+type NavItem = { href: string; label: string };
 
 export function MobileNav({ items }: { items: readonly NavItem[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close the menu whenever the route changes
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Lock body scroll while the menu is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => {
@@ -26,11 +23,11 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
   return (
     <div className="md:hidden">
       <button
-            onClick={() => setOpen(v => !v)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-crimson-800 transition-colors hover:bg-gold-400/10"
-            >
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-expanded={open}
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-crimson-800 transition-colors hover:bg-gold-400/10"
+      >
         <span className="relative block h-4 w-5">
           <span
             className={
@@ -61,7 +58,6 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
         }
       />
 
-      {/* Panel */}
       <nav
         aria-label="Mobile navigation"
         className={
@@ -81,7 +77,7 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
                     (active ? 'text-crimson-800' : 'text-ink/75 hover:text-crimson-800')
                   }
                 >
-                  {item.label_hi}
+                  {item.label}
                   {active && <span className="text-sm text-gold-500">❁</span>}
                 </Link>
               </li>

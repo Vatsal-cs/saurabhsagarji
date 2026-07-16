@@ -1,28 +1,25 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/container';
 import { getSiteContent } from '@/lib/site-content';
-import { getLanguage } from '@/lib/language';
-import { t } from '@/lib/translations';
+import type { Language } from '@/lib/site-content';
 import { MobileNav } from './mobile-nav';
 
-const NAV_KEYS = [
-  { href: '/', key: 'nav_home' },
-  { href: '/about', key: 'nav_about' },
-  { href: '/bhajans', key: 'nav_bhajans' },
-  { href: '/teachings', key: 'nav_teachings' },
-  { href: '/books', key: 'nav_books' },
-  { href: '/events', key: 'nav_events' },
-  { href: '/gallery', key: 'nav_gallery' },
-  { href: '/contact', key: 'nav_contact' },
-] as const;
-
-export async function Header() {
-  const lang = await getLanguage();
+export async function Header({ locale }: { locale: string }) {
+  const lang = (locale === 'en' ? 'en' : 'hi') as Language;
+  const t = await getTranslations({ locale, namespace: 'Nav' });
   const siteName = await getSiteContent('site_name', lang);
-  const navItems = NAV_KEYS.map((item) => ({
-    href: item.href,
-    label_hi: t(item.key, lang),
-  }));
+
+  const navItems = [
+    { href: '/', label: t('home') },
+    { href: '/about', label: t('about') },
+    { href: '/bhajans', label: t('bhajans') },
+    { href: '/teachings', label: t('teachings') },
+    { href: '/books', label: t('books') },
+    { href: '/events', label: t('events') },
+    { href: '/gallery', label: t('gallery') },
+    { href: '/contact', label: t('contact') },
+  ] as const;
 
   return (
     <header className="sticky top-0 z-40 border-b border-gold-500/30 bg-ivory/90 backdrop-blur-md">
@@ -43,14 +40,14 @@ export async function Header() {
                     href={item.href}
                     className="relative rounded-md px-3 py-2 font-serif transition-colors hover:text-crimson-800 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform after:duration-300 hover:after:scale-x-100"
                   >
-                    {item.label_hi}
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <MobileNav items={navItems} />
+          <MobileNav items={navItems.map((i) => ({ href: i.href, label: i.label }))} />
         </div>
       </Container>
     </header>
