@@ -2,17 +2,23 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/container';
 import { getSiteContent } from '@/lib/site-content';
+import { getPublishedAboutSections } from '@/lib/about';
 import type { Language } from '@/lib/site-content';
 import { MobileNav } from './mobile-nav';
+import { AboutDropdown } from './about-dropdown';
 
 export async function Header({ locale }: { locale: string }) {
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
   const t = await getTranslations({ locale, namespace: 'Nav' });
   const siteName = await getSiteContent('site_name', lang);
+  const aboutSections = await getPublishedAboutSections();
 
-  const navItems = [
-    { href: '/', label: t('home') },
-    { href: '/about', label: t('about') },
+  const aboutItems = aboutSections.map((s) => ({
+    href: `/about/${s.slug}`,
+    label: lang === 'en' && s.title_en ? s.title_en : s.title_hi,
+  }));
+
+  const restItems = [
     { href: '/bhajans', label: t('bhajans') },
     { href: '/teachings', label: t('teachings') },
     { href: '/books', label: t('books') },
@@ -32,9 +38,18 @@ export async function Header({ locale }: { locale: string }) {
             </span>
           </Link>
 
-          <nav aria-label="Main navigation" className="hidden md:flex md:flex-1 md:justify-end">
+          <nav aria-label="Main navigation" className="hidden md:flex md:flex-1 md:items-center md:justify-end">
             <ul className="flex items-center gap-0.5 text-sm text-ink/70">
-              {navItems.map((item) => (
+              <li>
+                <Link
+                  href="/"
+                  className="relative rounded-md px-3 py-2 font-serif transition-colors hover:text-crimson-800 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform after:duration-300 hover:after:scale-x-100"
+                >
+                  {t('home')}
+                </Link>
+              </li>
+              <AboutDropdown label={t('about')} items={aboutItems} />
+              {restItems.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -47,7 +62,12 @@ export async function Header({ locale }: { locale: string }) {
             </ul>
           </nav>
 
-          <MobileNav items={navItems.map((i) => ({ href: i.href, label: i.label }))} />
+          <MobileNav
+            homeItem={{ href: '/', label: t('home') }}
+            aboutLabel={t('about')}
+            aboutItems={aboutItems}
+            restItems={restItems.map((i) => ({ href: i.href, label: i.label }))}
+          />
         </div>
       </Container>
     </header>

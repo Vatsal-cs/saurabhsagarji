@@ -52,7 +52,7 @@ export default async function DashboardPage() {
             <AdminNavCard href="#" title="Bhajans" description="Coming soon." disabled />
             <AdminNavCard href="#" title="Teachings" description="Coming soon." disabled />
             <AdminNavCard href="#" title="Events" description="Coming soon." disabled />
-            <AdminNavCard href="#" title="Gallery" description="Coming soon." disabled />
+            <AdminNavCard href="/prabhat-gate/gallery" title="Gallery" description="Manage photo albums." />
             <AdminNavCard href="#" title="Site content" description="Coming soon." disabled />
         </div>
       </div>

@@ -10,6 +10,8 @@ export function LanguageToggle() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
+  if (pathname.includes('/read')) return null;
+
   function switchTo(target: 'hi' | 'en') {
     if (target === locale || pending) return;
     startTransition(() => {

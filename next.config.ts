@@ -4,13 +4,17 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {},
+  },
   allowedDevOrigins: ["192.168.31.133"],
 
   serverExternalPackages: ['@napi-rs/canvas', 'pdfjs-dist'],
 
   experimental: {
+    proxyClientMaxBodySize: '300mb',
     serverActions: {
-      bodySizeLimit: '55mb',
+      bodySizeLimit: '300mb',
     },
   },
 

@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_sections: {
+        Row: {
+          body_en: string | null
+          body_hi: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          intro_en: string | null
+          intro_hi: string | null
+          is_published: boolean
+          photo_1_url: string | null
+          photo_2_url: string | null
+          published_at: string | null
+          slug: string
+          title_en: string | null
+          title_hi: string
+          updated_at: string
+        }
+        Insert: {
+          body_en?: string | null
+          body_hi?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          intro_en?: string | null
+          intro_hi?: string | null
+          is_published?: boolean
+          photo_1_url?: string | null
+          photo_2_url?: string | null
+          published_at?: string | null
+          slug: string
+          title_en?: string | null
+          title_hi: string
+          updated_at?: string
+        }
+        Update: {
+          body_en?: string | null
+          body_hi?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          intro_en?: string | null
+          intro_hi?: string | null
+          is_published?: boolean
+          photo_1_url?: string | null
+          photo_2_url?: string | null
+          published_at?: string | null
+          slug?: string
+          title_en?: string | null
+          title_hi?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "about_sections_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -44,93 +109,39 @@ export type Database = {
         }
         Relationships: []
       }
-      bhajan_categories: {
-        Row: {
-          bhajan_id: string
-          category_id: string
-        }
-        Insert: {
-          bhajan_id: string
-          category_id: string
-        }
-        Update: {
-          bhajan_id?: string
-          category_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bhajan_categories_bhajan_id_fkey"
-            columns: ["bhajan_id"]
-            isOneToOne: false
-            referencedRelation: "bhajans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bhajan_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       bhajans: {
         Row: {
-          audio_url: string | null
-          cover_image_url: string | null
           created_at: string
           created_by: string | null
-          description_en: string | null
-          description_hi: string | null
+          display_order: number
           id: string
           is_published: boolean
-          lyrics_en: string | null
-          lyrics_hi: string | null
           published_at: string | null
-          search_vector: unknown
-          slug: string
-          title_en: string | null
-          title_hi: string
           updated_at: string
-          youtube_video_id: string | null
+          youtube_url: string
+          youtube_video_id: string
         }
         Insert: {
-          audio_url?: string | null
-          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
-          description_en?: string | null
-          description_hi?: string | null
+          display_order?: number
           id?: string
           is_published?: boolean
-          lyrics_en?: string | null
-          lyrics_hi?: string | null
           published_at?: string | null
-          search_vector?: unknown
-          slug: string
-          title_en?: string | null
-          title_hi: string
           updated_at?: string
-          youtube_video_id?: string | null
+          youtube_url: string
+          youtube_video_id: string
         }
         Update: {
-          audio_url?: string | null
-          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
-          description_en?: string | null
-          description_hi?: string | null
+          display_order?: number
           id?: string
           is_published?: boolean
-          lyrics_en?: string | null
-          lyrics_hi?: string | null
           published_at?: string | null
-          search_vector?: unknown
-          slug?: string
-          title_en?: string | null
-          title_hi?: string
           updated_at?: string
-          youtube_video_id?: string | null
+          youtube_url?: string
+          youtube_video_id?: string
         }
         Relationships: [
           {
@@ -567,96 +578,42 @@ export type Database = {
           },
         ]
       }
-      teaching_categories: {
-        Row: {
-          category_id: string
-          teaching_id: string
-        }
-        Insert: {
-          category_id: string
-          teaching_id: string
-        }
-        Update: {
-          category_id?: string
-          teaching_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "teaching_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "teaching_categories_teaching_id_fkey"
-            columns: ["teaching_id"]
-            isOneToOne: false
-            referencedRelation: "teachings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       teachings: {
         Row: {
-          audio_url: string | null
-          cover_image_url: string | null
           created_at: string
           created_by: string | null
-          duration_seconds: number | null
+          display_order: number
           id: string
           is_published: boolean
+          pravachan_date: string | null
           published_at: string | null
-          search_vector: unknown
-          slug: string
-          summary_en: string | null
-          summary_hi: string | null
-          title_en: string | null
-          title_hi: string
-          transcript_en: string | null
-          transcript_hi: string | null
           updated_at: string
-          youtube_video_id: string | null
+          youtube_url: string
+          youtube_video_id: string
         }
         Insert: {
-          audio_url?: string | null
-          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
-          duration_seconds?: number | null
+          display_order?: number
           id?: string
           is_published?: boolean
+          pravachan_date?: string | null
           published_at?: string | null
-          search_vector?: unknown
-          slug: string
-          summary_en?: string | null
-          summary_hi?: string | null
-          title_en?: string | null
-          title_hi: string
-          transcript_en?: string | null
-          transcript_hi?: string | null
           updated_at?: string
-          youtube_video_id?: string | null
+          youtube_url: string
+          youtube_video_id: string
         }
         Update: {
-          audio_url?: string | null
-          cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
-          duration_seconds?: number | null
+          display_order?: number
           id?: string
           is_published?: boolean
+          pravachan_date?: string | null
           published_at?: string | null
-          search_vector?: unknown
-          slug?: string
-          summary_en?: string | null
-          summary_hi?: string | null
-          title_en?: string | null
-          title_hi?: string
-          transcript_en?: string | null
-          transcript_hi?: string | null
           updated_at?: string
-          youtube_video_id?: string | null
+          youtube_url?: string
+          youtube_video_id?: string
         }
         Relationships: [
           {
