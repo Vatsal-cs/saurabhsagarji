@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getPublishedAlbums, getPhotosForAlbum } from '@/lib/gallery';
 import { Reveal } from '@/components/ui/reveal';
+import { SoberTexture } from '@/components/ui/sober-texture';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import { GalleryClient } from './gallery-client';
 
@@ -21,8 +22,9 @@ export default async function GalleryPage({ params }: Props) {
   );
 
   return (
-    <main className="bg-ivory">
-      <div className="mx-auto w-full max-w-6xl px-6 sm:px-8">
+    <main className="relative min-h-full overflow-hidden bg-ivory">
+      <SoberTexture />
+      <div className="relative mx-auto w-full max-w-6xl px-6 sm:px-8">
         <div className="py-16 sm:py-20">
           <Reveal className="mx-auto max-w-2xl text-center">
             <p className="font-serif text-base uppercase tracking-[0.1em] text-gold-600">

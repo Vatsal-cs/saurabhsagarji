@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getPublishedBhajans } from '@/lib/bhajans';
 import { Reveal } from '@/components/ui/reveal';
-import { WarmTexture } from '@/components/ui/warm-texture';
+import { SoberTexture } from '@/components/ui/sober-texture';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
 
@@ -15,8 +15,8 @@ export default async function BhajansPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'ComingSoon' });
 
   return (
-    <main className="relative overflow-hidden bg-ivory">
-      <WarmTexture />
+    <main className="relative min-h-full overflow-hidden bg-ivory">
+      <SoberTexture />
       <div className="relative mx-auto w-full max-w-6xl px-6 sm:px-8">
         <div className="py-16 sm:py-20">
           <Reveal className="mx-auto max-w-2xl text-center">

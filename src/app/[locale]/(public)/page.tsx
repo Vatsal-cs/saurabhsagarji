@@ -80,7 +80,7 @@ export default async function HomePage({ params }: Props) {
   const manshapuranPhoto = manshapuranSection?.photo_1_url ?? manshapuranSection?.photo_2_url ?? null;
 
   return (
-    <main className="bg-ivory text-ink">
+    <main className="min-h-full bg-ivory text-ink">
       {/* Hero + marquee + quote share one continuous dark canvas — the grid
           and gold particles span the whole thing instead of stopping at the
           hero's edge. */}

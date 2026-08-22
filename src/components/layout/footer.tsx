@@ -14,7 +14,7 @@ export async function Footer({ locale }: { locale: string }) {
   const copyright = c.footer_copyright.replace('{year}', String(year));
 
   return (
-    <footer className="mt-24 bg-maroon-900 text-ivory/80">
+    <footer className="bg-maroon-900 text-ivory/80">
       <Marquee
         items={[Array(10).fill('॥ ॐ ह्रूं सौरभ सागर गुरुवे नमः ॥   ❁   ').join('')]}
         duration={34}

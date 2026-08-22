@@ -15,6 +15,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     <AnimatePresence initial={false} mode="popLayout">
       <motion.div
         key={pathname}
+        className="h-full"
         initial={{ opacity: 0, scale: 1.025 }}
         animate={{ opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
         exit={{ opacity: 0, scale: 0.975, pointerEvents: 'none', transition: { duration: 0.35, ease: [0.4, 0, 1, 1] } }}

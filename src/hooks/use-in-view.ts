@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { onLayoutSettled } from '@/lib/dom-ready';
 
 /**
  * Plain-CSS scroll reveal trigger: flips to true once the element has been
@@ -8,12 +9,18 @@ import { useEffect, useRef, useState } from 'react';
  * IntersectionObserver — no animation library in the loop — so the caller's
  * own CSS transition is the only thing responsible for how it looks.
  *
- * The failsafe is a last resort only (browsers that throttle/suspend
- * IntersectionObserver in backgrounded tabs) — it's deliberately long so it
- * never preempts a real scroll-triggered reveal for content that starts
- * below the fold; a short failsafe (a couple of seconds) fires before most
- * people even start scrolling, making the reveal look like it never waited
- * for scroll at all.
+ * No timed failsafe: a fixed timeout fires for every instance mounted around
+ * the same time regardless of scroll position, so content below the fold
+ * pops in on its own a few seconds after load — exactly the "reveals itself
+ * without scrolling" bug it was meant to prevent. If a tab is backgrounded
+ * and the observer is throttled, nobody's watching anyway; it reveals
+ * correctly once the tab is visible again.
+ *
+ * Observation is deferred until the page's layout has settled (see
+ * onLayoutSettled) — starting it any earlier can catch a section while it's
+ * still, briefly, within the viewport on an unsettled/shorter layout,
+ * permanently locking it "revealed" even though the layout shift right
+ * after immediately pushes it below the fold.
  */
 export function useInView<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
@@ -22,23 +29,24 @@ export function useInView<T extends HTMLElement>(threshold = 0.2) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let observer: IntersectionObserver | undefined;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold, rootMargin: '0px 0px -10% 0px' }
-    );
-    observer.observe(el);
-
-    const failsafe = setTimeout(() => setInView(true), 8000);
+    const cancelSettle = onLayoutSettled(() => {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setInView(true);
+            observer?.disconnect();
+          }
+        },
+        { threshold, rootMargin: '0px 0px -10% 0px' }
+      );
+      observer.observe(el);
+    });
 
     return () => {
-      observer.disconnect();
-      clearTimeout(failsafe);
+      cancelSettle();
+      observer?.disconnect();
     };
   }, [threshold]);
 

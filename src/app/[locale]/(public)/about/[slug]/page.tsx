@@ -8,7 +8,7 @@ import {
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/ui/reveal';
 import { OrnamentDivider } from '@/components/ui/ornament-divider';
-import { WarmTexture } from '@/components/ui/warm-texture';
+import { SoberTexture } from '@/components/ui/sober-texture';
 import { AmbientGlow } from '@/components/ui/ambient-glow';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
@@ -75,10 +75,10 @@ export default async function AboutSectionPage({ params }: Props) {
       : -1;
 
   return (
-    <main className="relative overflow-hidden bg-ivory">
+    <main className="relative min-h-full overflow-hidden bg-ivory">
       {/* Header — oversized title over a faint drifting glyph */}
       <div className="relative overflow-hidden px-6 pb-10 pt-16 text-center sm:px-8 sm:pb-14 sm:pt-24">
-        <WarmTexture />
+        <SoberTexture />
 
         <div className="relative">
           <Reveal>
@@ -99,7 +99,7 @@ export default async function AboutSectionPage({ params }: Props) {
 
       {/* Body — a book-page layout: photo 1 floats beside the opening text, photo 2 floats mid-text on the right */}
       <div className="relative overflow-hidden">
-        <WarmTexture />
+        <SoberTexture />
         <AmbientGlow />
         <div className="relative mx-auto w-full max-w-3xl px-6 pt-10 pb-20 sm:px-8 sm:pt-14 sm:pb-28">
           {photos[0] && (
@@ -173,7 +173,7 @@ export default async function AboutSectionPage({ params }: Props) {
           the cross-links to other sections. */}
       {section.videos.length > 0 && (
         <div className="relative overflow-hidden">
-          <WarmTexture />
+          <SoberTexture />
           <div className="relative mx-auto w-full max-w-3xl px-6 pb-20 sm:px-8 sm:pb-28">
             <Reveal>
               <span aria-hidden="true" className="mb-3 block h-[3px] w-12 bg-gradient-to-r from-gold-500 to-gold-400/30" />
@@ -195,7 +195,7 @@ export default async function AboutSectionPage({ params }: Props) {
       {/* Continue exploring — cross-links to the other about sections */}
       {otherSections.length > 0 && (
         <section className="relative overflow-hidden bg-sand/50 px-6 py-20 sm:px-8 sm:py-24">
-          <WarmTexture />
+          <SoberTexture />
           <div className="relative mx-auto max-w-6xl">
             <Reveal>
               <OrnamentDivider className="mb-4" />

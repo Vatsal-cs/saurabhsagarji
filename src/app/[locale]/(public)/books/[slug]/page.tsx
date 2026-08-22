@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
 import { Reveal } from '@/components/ui/reveal';
+import { SoberTexture } from '@/components/ui/sober-texture';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import { Parallax } from '@/components/motion/parallax';
 import { getPublishedBookBySlug, getPublishedBooksStatic, getPublicPdfDownloadUrl } from '@/lib/books';
@@ -51,7 +52,9 @@ export default async function BookDetailPage({ params }: Props) {
   const description = lang === 'en' && book.description_en ? book.description_en : book.description_hi;
 
   return (
-    <Container>
+    <div className="relative min-h-full overflow-hidden bg-ivory">
+      <SoberTexture />
+      <Container className="relative">
       <article className="py-16">
         <nav aria-label="Breadcrumb" className="mb-8 text-sm text-neutral-500">
           <Link href="/books" className="transition-colors hover:text-maroon-800">
@@ -121,6 +124,7 @@ export default async function BookDetailPage({ params }: Props) {
           </Reveal>
         </div>
       </article>
-    </Container>
+      </Container>
+    </div>
   );
 }
