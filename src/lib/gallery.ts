@@ -95,6 +95,32 @@ export async function getPhotosForAlbum(albumId: string): Promise<PublicPhoto[]>
   return (data ?? []).map(toPublicPhoto);
 }
 
+/**
+ * A cross-album sampler for the homepage marquee — pulls a handful of photos
+ * from each of the first few published albums and round-robins them into one
+ * list, so the scrolling row actually mixes albums instead of showing one
+ * album's photos back to back (which is all a plain "first album" pick gives).
+ */
+export async function getGalleryPreviewPhotos(
+  perAlbum = 4,
+  maxAlbums = 6
+): Promise<PublicPhoto[]> {
+  const albums = await getPublishedAlbums();
+  const byAlbum = await Promise.all(
+    albums.slice(0, maxAlbums).map((album) => getPhotosForAlbum(album.id))
+  );
+  const trimmed = byAlbum.map((photos) => photos.slice(0, perAlbum));
+
+  const mixed: PublicPhoto[] = [];
+  const longest = trimmed.reduce((max, photos) => Math.max(max, photos.length), 0);
+  for (let i = 0; i < longest; i++) {
+    for (const photos of trimmed) {
+      if (photos[i]) mixed.push(photos[i]);
+    }
+  }
+  return mixed;
+}
+
 /** Admin: every album regardless of publish state. */
 export async function getAllAlbumsForAdmin() {
   const supabase = await createClient();

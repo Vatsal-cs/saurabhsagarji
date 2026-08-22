@@ -18,6 +18,12 @@ export type PublicAboutSection = {
   display_order: number;
 };
 
+export type PublicAboutVideo = {
+  id: string;
+  youtube_video_id: string;
+  display_order: number;
+};
+
 function toPublic(row: Section): PublicAboutSection {
   return {
     id: row.id,
@@ -66,7 +72,26 @@ export async function getPublishedAboutSectionsStatic(): Promise<PublicAboutSect
   return (data ?? []).map(toPublic);
 }
 
-export async function getPublishedAboutSectionBySlug(slug: string): Promise<PublicAboutSection | null> {
+/** Videos attached to a section, in display order — shown as cards at the
+ * bottom of the biography page. */
+export async function getAboutSectionVideos(sectionId: string): Promise<PublicAboutVideo[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('about_section_videos')
+    .select('id, youtube_video_id, display_order')
+    .eq('about_section_id', sectionId)
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error('[getAboutSectionVideos]', error);
+    return [];
+  }
+  return data ?? [];
+}
+
+export async function getPublishedAboutSectionBySlug(
+  slug: string
+): Promise<(PublicAboutSection & { videos: PublicAboutVideo[] }) | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('about_sections')
@@ -79,7 +104,10 @@ export async function getPublishedAboutSectionBySlug(slug: string): Promise<Publ
     console.error('[getPublishedAboutSectionBySlug]', error);
     return null;
   }
-  return data ? toPublic(data) : null;
+  if (!data) return null;
+
+  const videos = await getAboutSectionVideos(data.id);
+  return { ...toPublic(data), videos };
 }
 
 /** Admin: every section regardless of publish state, in display order. */
@@ -109,5 +137,8 @@ export async function getAboutSectionForAdmin(id: string) {
     console.error('[getAboutSectionForAdmin]', error);
     return null;
   }
-  return data;
+  if (!data) return null;
+
+  const videos = await getAboutSectionVideos(data.id);
+  return { ...data, videos };
 }

@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { aboutSectionInputSchema, type AboutSectionInput } from '@/lib/schemas/about';
+import { resizeForUpload } from '@/lib/image-resize';
+import { extractYouTubeId } from '@/lib/youtube';
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -25,7 +27,22 @@ export type ActionResult =
       ok: false;
       error: string;
       fieldErrors?: Partial<Record<keyof AboutSectionInput, string>>;
+      /** Echoes back what the admin had typed, so a failed save never wipes the form. */
+      values?: Partial<Record<keyof AboutSectionInput, string>>;
     };
+
+function echoValues(formData: FormData): Partial<Record<keyof AboutSectionInput, string>> {
+  const fields: (keyof AboutSectionInput)[] = [
+    'slug', 'title_hi', 'title_en', 'intro_hi', 'intro_en', 'body_hi', 'body_en', 'display_order',
+  ];
+  const values: Partial<Record<keyof AboutSectionInput, string>> = {};
+  for (const field of fields) {
+    const raw = formData.get(field);
+    if (typeof raw === 'string') values[field] = raw;
+  }
+  values.is_published = formData.get('is_published') === 'on' ? 'true' : 'false';
+  return values;
+}
 
 function toFieldErrors(err: import('zod').ZodError<AboutSectionInput>) {
   const map: Partial<Record<keyof AboutSectionInput, string>> = {};
@@ -60,12 +77,12 @@ async function uploadPhoto(
   if (file.size > 15 * 1024 * 1024) throw new Error('Photo must be under 15 MB');
   if (!file.type.startsWith('image/')) throw new Error('File must be an image');
 
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-  const path = `${slug}-photo${slot}-${Date.now()}.${ext}`;
+  const resized = await resizeForUpload(file);
+  const path = `${slug}-photo${slot}-${Date.now()}.jpg`;
 
   const { error } = await supabase.storage
     .from('about-photos')
-    .upload(path, file, { cacheControl: '3600', upsert: false });
+    .upload(path, resized, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
 
   if (error) throw new Error(`Photo upload failed: ${error.message}`);
 
@@ -73,16 +90,45 @@ async function uploadPhoto(
   return data.publicUrl;
 }
 
+/** Pulls every non-blank `video_urls` entry, resolves each to a YouTube video
+ * ID, and reports any that couldn't be parsed rather than silently dropping
+ * them — a bad link should block the save, not disappear. */
+function parseVideoUrls(formData: FormData): { ids: string[]; invalid: string[] } {
+  const raw = formData.getAll('video_urls').map((v) => String(v).trim()).filter(Boolean);
+  const ids: string[] = [];
+  const invalid: string[] = [];
+  for (const url of raw) {
+    const id = extractYouTubeId(url);
+    if (id) ids.push(id);
+    else invalid.push(url);
+  }
+  return { ids, invalid };
+}
+
 export async function updateAboutSection(
   id: string,
   _prev: ActionResult | null,
   formData: FormData
 ): Promise<ActionResult> {
-  const { supabase } = await assertAdmin();
+  const { supabase, adminId } = await assertAdmin();
 
   const parsed = aboutSectionInputSchema.safeParse(formDataToInput(formData));
   if (!parsed.success) {
-    return { ok: false, error: 'Please fix the errors below.', fieldErrors: toFieldErrors(parsed.error) };
+    return {
+      ok: false,
+      error: 'Please fix the errors below.',
+      fieldErrors: toFieldErrors(parsed.error),
+      values: echoValues(formData),
+    };
+  }
+
+  const { ids: videoIds, invalid: invalidVideoUrls } = parseVideoUrls(formData);
+  if (invalidVideoUrls.length > 0) {
+    return {
+      ok: false,
+      error: `Could not find a valid YouTube video in: ${invalidVideoUrls.join(', ')}`,
+      values: echoValues(formData),
+    };
   }
 
   const values = parsed.data;
@@ -93,7 +139,7 @@ export async function updateAboutSection(
     .eq('id', id)
     .single();
 
-  if (!existing) return { ok: false, error: 'Section not found.' };
+  if (!existing) return { ok: false, error: 'Section not found.', values: echoValues(formData) };
 
   let photo1Url = existing.photo_1_url;
   let photo2Url = existing.photo_2_url;
@@ -108,7 +154,11 @@ export async function updateAboutSection(
       photo2Url = await uploadPhoto(supabase, photo2File, values.slug, 2);
     }
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'Upload failed' };
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Upload failed',
+      values: echoValues(formData),
+    };
   }
 
   const nowPublishing = values.is_published && !existing.is_published;
@@ -133,9 +183,38 @@ export async function updateAboutSection(
 
   if (error) {
     if (error.code === '23505') {
-      return { ok: false, error: 'A section with that slug already exists.', fieldErrors: { slug: 'Slug must be unique' } };
+      return {
+        ok: false,
+        error: 'A section with that slug already exists.',
+        fieldErrors: { slug: 'Slug must be unique' },
+        values: echoValues(formData),
+      };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: error.message, values: echoValues(formData) };
+  }
+
+  // Replace the whole video list rather than diffing it — simplest thing
+  // that's correct for a handful of rows, and keeps display_order trivially
+  // in sync with whatever order the admin left them in on the form.
+  const { error: deleteVideosError } = await supabase
+    .from('about_section_videos')
+    .delete()
+    .eq('about_section_id', id);
+  if (deleteVideosError) {
+    return { ok: false, error: deleteVideosError.message, values: echoValues(formData) };
+  }
+  if (videoIds.length > 0) {
+    const { error: insertVideosError } = await supabase.from('about_section_videos').insert(
+      videoIds.map((youtube_video_id, i) => ({
+        about_section_id: id,
+        youtube_video_id,
+        display_order: i,
+        created_by: adminId,
+      }))
+    );
+    if (insertVideosError) {
+      return { ok: false, error: insertVideosError.message, values: echoValues(formData) };
+    }
   }
 
   revalidatePath('/about');

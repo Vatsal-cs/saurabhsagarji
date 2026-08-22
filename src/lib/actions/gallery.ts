@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { albumInputSchema, type AlbumInput } from '@/lib/schemas/gallery';
+import { resizeForUpload } from '@/lib/image-resize';
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -57,12 +58,12 @@ async function uploadCoverImage(
   if (file.size > 50 * 1024 * 1024) throw new Error('Cover image must be under 50 MB');
   if (!file.type.startsWith('image/')) throw new Error('Cover must be an image file');
 
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-  const path = `album-cover-${slug}-${Date.now()}.${ext}`;
+  const resized = await resizeForUpload(file);
+  const path = `album-cover-${slug}-${Date.now()}.jpg`;
 
   const { error } = await supabase.storage
     .from('gallery-photos')
-    .upload(path, file, { cacheControl: '3600', upsert: false });
+    .upload(path, resized, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
 
   if (error) throw new Error(`Cover upload failed: ${error.message}`);
 
@@ -255,12 +256,19 @@ export async function uploadPhotos(
       continue;
     }
 
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-    const path = `${albumId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const path = `${albumId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+
+    let resized: Buffer;
+    try {
+      resized = await resizeForUpload(file);
+    } catch {
+      errors.push(`${file.name}: could not process this image, skipped`);
+      continue;
+    }
 
     const { error: uploadError } = await supabase.storage
       .from('gallery-photos')
-      .upload(path, file, { cacheControl: '3600', upsert: false });
+      .upload(path, resized, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
 
     if (uploadError) {
       errors.push(`${file.name}: ${uploadError.message}`);

@@ -3,10 +3,10 @@
     "home": "मुख्य",
     "about": "परिचय",
     "bhajans": "भजन",
-    "teachings": "प्रवचन",
-    "books": "पुस्तकें",
-    "events": "कार्यक्रम",
-    "gallery": "चित्र",
+    "teachings": "उपदेश",
+    "books": "प्रकाशन",
+    "events": "समारोह",
+    "gallery": "गैलरी",
     "contact": "संपर्क"
   },
   "Footer": {
@@ -14,26 +14,27 @@
   },
   "Home": {
     "ctaBooks": "पुस्तकें",
-    "ctaTeachings": "प्रवचन",
+    "ctaTeachings": "उपदेश",
     "portraitAlt": "गुरुदेव का चित्र",
+    "manshapuranAlt": "मंशापूर्ण महावीर भगवान",
+    "acharyaAlt": "आचार्य जी",
     "portraitSoon": "शीघ्र प्रकाशित होगा",
     "readMore": "और पढ़ें",
     "exploreHeading": "दर्शन करें",
     "exploreSubtitle": "शिक्षाओं को जानें"
   },
   "Cards": {
-    "booksTitle": "पुस्तकें",
+    "booksTitle": "प्रकाशन",
     "booksDesc": "गुरुजी की आध्यात्मिकता, भक्ति और मोक्ष मार्ग पर लेखनी।",
-    "teachingsTitle": "प्रवचन",
-    "teachingsDesc": "दैनिक जीवन के लिए रिकॉर्ड किए गए प्रवचन और मार्गदर्शन।",
+    "teachingsTitle": "उपदेश",
+    "teachingsDesc": "दैनिक जीवन के लिए रिकॉर्ड किए गए उपदेश और मार्गदर्शन।",
     "bhajansTitle": "भजन",
     "bhajansDesc": "हृदय को पोषित करने वाले भजन।",
     "exploreCta": "दर्शन करें"
   },
   "Books": {
-    "eyebrow": "पुस्तकें",
-    "heading": "गुरुजी की पुस्तकें",
-    "subtitle": "गुरुजी की आध्यात्मिक, भक्ति एवं शांति संबंधी रचनाएं देखें।",
+    "eyebrow": "प्रकाशन",
+    "heading": "दिगम्बराचार्य श्री १०८ सौरभ सागर जी महामुनिराज द्वारा रचित एवं पुनः अनुवादित ग्रंथ तथा विधान",
     "emptyTitle": "कोई पुस्तक उपलब्ध नहीं है",
     "emptyBody": "जल्द ही पुस्तकें जोड़ी जाएंगी।",
     "allBooks": "पुस्तकें"
@@ -47,10 +48,34 @@
   "ComingSoon": {
     "eyebrow": "जल्द आ रहा है",
     "bhajans": "भजन",
-    "teachings": "प्रवचन",
-    "events": "कार्यक्रम",
-    "gallery": "चित्र",
+    "teachings": "उपदेश",
+    "events": "समारोह",
+    "gallery": "गैलरी",
     "contact": "संपर्क"
+  },
+  "Teachings": {
+    "liveNow": "अभी लाइव",
+    "liveNowCta": "लाइव उपदेश देखें",
+    "latestVideos": "नवीनतम वीडियो",
+    "noVideosTitle": "वीडियो शीघ्र उपलब्ध होंगे",
+    "noVideosBody": "तब तक यूट्यूब पर सीधे सभी उपदेश देखें।",
+    "visitChannel": "यूट्यूब चैनल देखें",
+    "watchShorts": "शॉर्ट्स देखें",
+    "instagramHeading": "इंस्टाग्राम पर फॉलो करें",
+    "instagramBody": "गुरुदेव की यात्रा की झलकियाँ।",
+    "instagramCta": "इंस्टाग्राम पर फॉलो करें",
+    "comingSoon": "जल्द आ रहा है"
+  },
+  "Contact": {
+    "eyebrow": "संपर्क",
+    "heading": "संपर्क",
+    "updatesHeading": "आचार्य श्री से संबंधित जानकारी हेतु",
+    "updatesBody": "आचार्य श्री से संबंधित नवीनतम जानकारी हेतु संपर्क करें:",
+    "callCta": "कॉल करें",
+    "donationsHeading": "दान",
+    "donationsBody": "यूपीआई से सीधे दान करने हेतु स्कैन करें, या कार्ड पर दिए गए बैंक विवरण का उपयोग करें।",
+    "qrJinalayaLabel": "श्री मंशापूर्ण महावीर जिनालय",
+    "qrHospitalLabel": "जीवन आशा हॉस्पिटल"
   },
   "NotFound": {
     "title": "पृष्ठ नहीं मिला",

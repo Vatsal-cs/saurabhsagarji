@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="hi" className={`${ebGaramond.variable} ${notoSerifDev.variable}`}>
-      <body className="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
+      <body className="min-h-screen bg-ivory text-neutral-900 antialiased">
         {children}
       </body>
     </html>

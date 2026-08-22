@@ -49,10 +49,10 @@ export default async function DashboardPage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
             <AdminNavCard href="/prabhat-gate/books" title="Books" description="Manage published books." />
-            <AdminNavCard href="#" title="Bhajans" description="Coming soon." disabled />
-            <AdminNavCard href="#" title="Teachings" description="Coming soon." disabled />
-            <AdminNavCard href="#" title="Events" description="Coming soon." disabled />
+            <AdminNavCard href="/prabhat-gate/bhajans" title="Bhajans" description="Manage bhajan videos." />
+            <AdminNavCard href="/prabhat-gate/events" title="Events" description="Manage upcoming and past events." />
             <AdminNavCard href="/prabhat-gate/gallery" title="Gallery" description="Manage photo albums." />
+            <AdminNavCard href="/prabhat-gate/about" title="About" description="Manage about sections." />
             <AdminNavCard href="#" title="Site content" description="Coming soon." disabled />
         </div>
       </div>

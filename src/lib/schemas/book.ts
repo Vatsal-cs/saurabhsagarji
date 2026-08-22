@@ -59,7 +59,10 @@ export const bookInputSchema = z.object({
     .max(new Date().getFullYear() + 1, 'Year is in the future')
     .optional(),
 
-  is_published: z.boolean().default(false),
+  // Curated subset shown in the homepage drag deck. A book is always published
+  // the moment it's saved — there's no separate publish/unpublish toggle — so
+  // this is the only visibility flag left for the admin to set.
+  is_home_pinned: z.boolean().default(false),
 });
 
 export type BookInput = z.infer<typeof bookInputSchema>;

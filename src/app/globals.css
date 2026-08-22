@@ -13,7 +13,7 @@
   --color-saffron-500: oklch(0.66 0.20 50);
   --color-saffron-700: oklch(0.50 0.18 45);
   --color-saffron-900: oklch(0.30 0.10 40);
-  /* Jain flag-inspired palette — bright, authentic */
+  /* Legacy red/crimson palette — kept for the admin panel only, not used on the public site */
   --color-crimson-700: oklch(0.55 0.22 27);
   --color-crimson-800: oklch(0.48 0.21 27);
   --color-crimson-900: oklch(0.40 0.18 27);
@@ -22,10 +22,14 @@
   --color-gold-600: oklch(0.72 0.15 80);
   --color-jade-500: oklch(0.62 0.14 155);
   --color-jade-600: oklch(0.54 0.13 155);
-  --color-indigo-700: oklch(0.40 0.12 265);
-  --color-indigo-900: oklch(0.28 0.10 265);
-  --color-ivory: oklch(0.99 0.008 90);
-  --color-sand: oklch(0.96 0.02 88);
+  /* Public site primary — maroon, built from #b22222 */
+  --color-maroon-600: oklch(0.46 0.18 27);
+  --color-maroon-700: oklch(0.40 0.18 27);
+  --color-maroon-800: oklch(0.345 0.18 27);
+  --color-maroon-900: oklch(0.28 0.18 27);
+  --color-maroon-950: oklch(0.19 0.144 27);
+  --color-ivory: oklch(0.955 0.025 85);
+  --color-sand: oklch(0.92 0.038 82);
   --color-ink: oklch(0.24 0.03 265);
 }
 
@@ -40,6 +44,16 @@ html {
   line-height: 1.7;
 }
 
+/* Hides the scrollbar on drag-to-scroll strips (book shelf, gallery tabs) while keeping
+   the element scrollable — used across several horizontal-scroll UIs on the site. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Devotional homepage flourishes */
 @keyframes gentle-fade {
   from { opacity: 0; transform: translateY(12px); }
@@ -50,4 +64,225 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-gentle-fade { animation: none; }
+}
+/* Ambient flowing particles (hero backgrounds) — three sway paths for variety */
+@keyframes drift-up-a {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: 0.7; }
+  50% { transform: translate(18px, -180px); opacity: 0.4; }
+  88% { opacity: 0; }
+  100% { transform: translate(-10px, -360px); opacity: 0; }
+}
+@keyframes drift-up-b {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: 0.6; }
+  45% { transform: translate(-22px, -150px); opacity: 0.45; }
+  80% { transform: translate(6px, -300px); opacity: 0.15; }
+  100% { transform: translate(14px, -380px); opacity: 0; }
+}
+@keyframes drift-up-c {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 0.55; }
+  55% { transform: translate(28px, -220px); opacity: 0.3; }
+  100% { transform: translate(-16px, -420px); opacity: 0; }
+}
+.animate-drift-up-a { animation-name: drift-up-a; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.animate-drift-up-b { animation-name: drift-up-b; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.animate-drift-up-c { animation-name: drift-up-c; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+
+/* Faint animated grid (dark hero backgrounds) — slow opacity breathing */
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.animate-grid-pulse {
+  animation: grid-pulse 8s ease-in-out infinite;
+}
+
+/* Large soft glow orbs drifting behind the grid */
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.08); }
+  66% { transform: translate(-20px, 15px) scale(0.96); }
+}
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(-35px, 25px) scale(1.1); }
+  75% { transform: translate(15px, -15px) scale(0.94); }
+}
+.animate-orb-drift-a { animation: orb-drift-a 18s ease-in-out infinite; }
+.animate-orb-drift-b { animation: orb-drift-b 22s ease-in-out infinite; }
+
+/* Slow marching-dash flow along decorative background threads */
+@keyframes flow-dash {
+  to { stroke-dashoffset: -400; }
+}
+.animate-flow-dash { animation: flow-dash 16s linear infinite; }
+
+/* Soft ring of light that continuously breathes outward and fades — used around the hero photo */
+@keyframes ring-pulse {
+  0% { transform: scale(1); opacity: 0.65; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.animate-ring-pulse { animation: ring-pulse 2.8s ease-out infinite; }
+
+/* A diya travelling the edge of a circular frame — outer div carries it around the ring,
+   inner div spins the opposite way at the same speed so the flame stays upright */
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-reverse {
+  to { transform: rotate(-360deg); }
+}
+.animate-orbit { animation: orbit 8s linear infinite; }
+.animate-orbit-reverse { animation: orbit-reverse 8s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-grid-pulse, .animate-orb-drift-a, .animate-orb-drift-b, .animate-flow-dash, .animate-ring-pulse, .animate-orbit, .animate-orbit-reverse { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift-up-a, .animate-drift-up-b, .animate-drift-up-c { animation: none; opacity: 0; }
+}
+
+/* Infinite horizontal ticker */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Slow idle spin for the header glyph, quickens on hover via a class swap */
+@keyframes idle-spin {
+  to { transform: rotate(360deg); }
+}
+.animate-idle-spin {
+  animation: idle-spin 12s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-idle-spin { animation: none; }
+}
+
+/* Animated conic-gradient border for the featured event card */
+@keyframes spin-border {
+  to { --border-angle: 360deg; }
+}
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.animate-spin-border {
+  animation: spin-border 6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-border { animation: none; }
+}
+
+/* A glossy light band sweeping across a card's surface, like a reflection
+   passing over glass — layered on top of the spin-border for a card that
+   feels alive at rest, not just around its edge. */
+@keyframes shimmer-sweep {
+  0%, 15% { left: -45%; }
+  85%, 100% { left: 130%; }
+}
+.animate-shimmer-sweep {
+  animation: shimmer-sweep 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer-sweep { display: none; }
+}
+
+/* A single bulb in a chasing marquee-light border, like the bulb strips around
+   an old cinema sign or a festival stage — each bulb runs the same flash cycle,
+   offset by animation-delay per bulb, so together they read as light running
+   around the frame. */
+@keyframes marquee-bulb {
+  0%, 88%, 100% { opacity: 0.12; transform: translate(-50%, -50%) scale(0.7); }
+  4% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+  14% { opacity: 0.12; transform: translate(-50%, -50%) scale(0.7); }
+}
+.animate-marquee-bulb {
+  animation: marquee-bulb 4.2s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-bulb { animation: none; opacity: 0.7; }
+}
+
+/* One bar of a "now playing" equalizer — bars run the same bounce with a
+   per-bar delay/duration so together they read as sound pulsing, in place of
+   a literal broadcast/live-TV cue that doesn't fit devotional audio. */
+@keyframes eq-bar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+.animate-eq-bar {
+  animation: eq-bar 1s ease-in-out infinite;
+  transform-origin: bottom;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-eq-bar { animation: none; transform: scaleY(0.6); }
+}
+
+/* A bright, unmistakable band of light passing through sacred text — like a
+   shimmer/skeleton-loading highlight, repurposed as divine light sweeping over the
+   mangalacharan rather than a UI loading state. Base color matches the gold-400 used for
+   the portrait captions elsewhere on the hero, with a near-white core at the peak for
+   contrast; a narrow peak (48–52%) keeps it a crisp band rather than a slow fade. */
+@keyframes text-shimmer {
+  from { background-position: 250% 0; }
+  to { background-position: -250% 0; }
+}
+.animate-text-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-400) 35%,
+    #fffdf2 50%,
+    var(--color-gold-400) 65%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer 5.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-text-shimmer {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: unset;
+    color: var(--color-gold-400);
+  }
+}
+
+/* Slow sweep for the hero name — same gold-400 base as the mangalacharan shimmer and the
+   portrait captions, just a slower cycle so the large headline doesn't feel busy. */
+@keyframes yellow-shimmer {
+  from { background-position: 250% 0; }
+  to { background-position: -250% 0; }
+}
+.animate-yellow-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-400) 35%,
+    #fffdf2 50%,
+    var(--color-gold-400) 65%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: yellow-shimmer 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-yellow-shimmer {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: unset;
+    color: var(--color-gold-400);
+  }
 }

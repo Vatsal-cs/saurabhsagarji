@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPublishedBookBySlug, getSignedPdfUrl } from '@/lib/books';
+import { getPublishedBookBySlug, getPublicPdfUrl } from '@/lib/books';
 import { BookReader } from './book-reader';
 
 export const dynamicParams = true;
@@ -15,8 +15,7 @@ export default async function BookReaderPage({ params }: Props) {
   const book = await getPublishedBookBySlug(slug);
   if (!book || !book.pdf_url) notFound();
 
-  const pdfUrl = await getSignedPdfUrl(book.pdf_url);
-  if (!pdfUrl) notFound();
+  const pdfUrl = getPublicPdfUrl(book.pdf_url);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-neutral-900">
@@ -32,7 +31,7 @@ export default async function BookReaderPage({ params }: Props) {
       </header>
 
       <main className="flex-1 overflow-hidden">
-        <BookReader pdfUrl={`/api/book-pdf/${slug}`} title={book.title_hi} />
+        <BookReader pdfUrl={pdfUrl} title={book.title_hi} />
       </main>
     </div>
   );

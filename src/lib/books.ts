@@ -28,6 +28,7 @@ export type PublicBook = {
   pdf_url: string | null;
   publication_year: number | null;
   published_at: string | null;
+  display_order: number;
 };
 
 function toPublicBook(row: Book): PublicBook {
@@ -45,6 +46,7 @@ function toPublicBook(row: Book): PublicBook {
     pdf_url: row.pdf_url,
     publication_year: row.publication_year,
     published_at: row.published_at,
+    display_order: row.display_order,
   };
 }
 
@@ -58,13 +60,34 @@ export async function getPublishedBooks(): Promise<PublicBook[]> {
     .from('books')
     .select('*')
     .eq('is_published', true)
-    .order('published_at', { ascending: false });
+    .order('display_order', { ascending: true });
 
   if (error) {
     // In prod we'd log to Sentry / an observability tool.
     // For now, surface it in server logs and return an empty list
     // so the page still renders (soft failure).
     console.error('[getPublishedBooks]', error);
+    return [];
+  }
+
+  return (data ?? []).map(toPublicBook);
+}
+
+/**
+ * Books an admin has pinned for the homepage drag deck — a curated subset of
+ * getPublishedBooks, independent of the full /books catalogue.
+ */
+export async function getHomePinnedBooks(): Promise<PublicBook[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('books')
+    .select('*')
+    .eq('is_published', true)
+    .eq('is_home_pinned', true)
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error('[getHomePinnedBooks]', error);
     return [];
   }
 
@@ -82,8 +105,8 @@ export async function getPublishedBooksStatic(): Promise<PublicBook[]> {
       .from('books')
       .select('*')
       .eq('is_published', true)
-      .order('published_at', { ascending: false });
-  
+      .order('display_order', { ascending: true });
+
     if (error) {
       console.error('[getPublishedBooksStatic]', error);
       return [];
@@ -125,8 +148,8 @@ export async function getAllBooksForAdmin(): Promise<Book[]> {
     const { data, error } = await supabase
       .from('books')
       .select('*')
-      .order('updated_at', { ascending: false });
-  
+      .order('display_order', { ascending: true });
+
     if (error) {
       console.error('[getAllBooksForAdmin]', error);
       return [];
@@ -153,26 +176,38 @@ export async function getAllBooksForAdmin(): Promise<Book[]> {
   }
 
 /**
- * Generate a short-lived signed URL for a private PDF in book-pdfs bucket.
- * Called at read time. URL expires after the given seconds (default 1 hour).
+ * Public, permanent URL for a PDF in the (now public) book-pdfs bucket. Same
+ * path every time a given book is read, unlike getSignedPdfUrl — that's what
+ * lets the reader fetch straight from Supabase's storage domain instead of
+ * proxying every chunk through our own server, so repeat requests for the
+ * same file can actually be cached instead of hitting Supabase origin fresh
+ * on every single range request.
  *
  * If pdfPath is already a full URL (e.g. externally hosted), returns it unchanged.
  */
-export async function getSignedPdfUrl(
-  pdfPath: string,
-  expiresInSeconds = 3600
-): Promise<string | null> {
+export function getPublicPdfUrl(pdfPath: string): string {
   if (pdfPath.startsWith('http')) return pdfPath;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/book-pdfs/${pdfPath}`;
+}
 
-  const { createServiceClient } = await import('@/lib/supabase/static');
-  const supabase = createServiceClient();
-  const { data, error } = await supabase.storage
-    .from('book-pdfs')
-    .createSignedUrl(pdfPath, expiresInSeconds);
+/**
+ * Same public URL, but with Supabase's `?download=` param so the browser
+ * forces a "Save As" with a friendly filename instead of just opening the
+ * PDF — the direct-link equivalent of what the old proxy route's
+ * Content-Disposition header did, without a round trip through our server.
+ */
+export function getPublicPdfDownloadUrl(
+  pdfPath: string,
+  slug: string,
+  titleEn: string | null
+): string {
+  const url = getPublicPdfUrl(pdfPath);
+  if (pdfPath.startsWith('http')) return url; // externally hosted — leave as-is
 
-  if (error) {
-    console.error('[getSignedPdfUrl]', error);
-    return null;
-  }
-  return data.signedUrl;
+  const base = (titleEn ?? slug)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const filename = `${base || slug}.pdf`;
+  return `${url}?download=${encodeURIComponent(filename)}`;
 }

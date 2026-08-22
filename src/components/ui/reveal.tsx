@@ -1,11 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 /**
- * Fades/slides children into view on scroll.
- * Fail-safe: if IntersectionObserver is unavailable, reduced-motion is on,
- * or anything goes wrong, content is shown immediately.
+ * Fades/slides children into view on scroll. Built on Framer Motion's
+ * whileInView, which auto-degrades under MotionConfig reducedMotion="user"
+ * (drops the translateY, keeps the opacity fade).
+ *
+ * whileInView depends on IntersectionObserver, which some browsers throttle
+ * or suspend entirely for backgrounded/hidden tabs — if that happens the
+ * trigger may never fire. A timed failsafe forces the visible state so
+ * content can never get stuck invisible.
  */
 export function Reveal({
   children,
@@ -16,72 +22,23 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // Start visible so SSR/no-JS/observer-failure never hides content.
-  const [visible, setVisible] = useState(true);
-  const [armed, setArmed] = useState(false);
+  const [forced, setForced] = useState(false);
 
   useEffect(() => {
-    // Only enable the animation if everything we need is available.
-    if (typeof window === 'undefined') return;
-    if (!('IntersectionObserver' in window)) return;
-
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
-
-    const el = ref.current;
-    if (!el) return;
-
-    // If it's already on screen at mount, leave it visible (no flash).
-    const rect = el.getBoundingClientRect();
-    const alreadyInView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (alreadyInView) {
-      setArmed(true);
-      return;
-    }
-
-    // Otherwise hide it and animate in when scrolled to.
-    setVisible(false);
-    setArmed(true);
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-    observer.observe(el);
-
-    // Safety net: reveal after 1.5s no matter what.
-    const failsafe = setTimeout(() => {
-      setVisible(true);
-      observer.disconnect();
-    }, 1500);
-
-    return () => {
-      clearTimeout(failsafe);
-      observer.disconnect();
-    };
+    const t = setTimeout(() => setForced(true), 2000);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <div
-      ref={ref}
+    <motion.div
       className={className}
-      style={
-        armed
-          ? {
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0)' : 'translateY(24px)',
-              transition: `opacity 0.7s ease-out ${delay}ms, transform 0.7s ease-out ${delay}ms`,
-            }
-          : undefined
-      }
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      animate={forced ? { opacity: 1, y: 0 } : undefined}
+      viewport={{ once: true, amount: 0.15, margin: '0px 0px -80px 0px' }}
+      transition={{ duration: 0.7, delay: delay / 1000, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

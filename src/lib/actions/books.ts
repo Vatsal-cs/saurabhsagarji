@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { bookInputSchema, type BookInput } from '@/lib/schemas/book';
+import { resizeForUpload } from '@/lib/image-resize';
 
 async function assertAdmin() {
   const supabase = await createClient();
@@ -47,7 +48,7 @@ function formDataToBookInput(formData: FormData): unknown {
     description_en: formData.get('description_en'),
     publication_year:
       yearRaw && String(yearRaw).trim() !== '' ? Number(yearRaw) : undefined,
-    is_published: formData.get('is_published') === 'on',
+    is_home_pinned: formData.get('is_home_pinned') === 'on',
   };
 }
 
@@ -59,12 +60,12 @@ async function uploadCover(
   if (file.size > 5 * 1024 * 1024) throw new Error('Cover image must be under 5 MB');
   if (!file.type.startsWith('image/')) throw new Error('Cover must be an image file');
 
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-  const path = `${slug}-cover-${Date.now()}.${ext}`;
+  const resized = await resizeForUpload(file);
+  const path = `${slug}-cover-${Date.now()}.jpg`;
 
   const { error } = await supabase.storage
     .from('book-covers')
-    .upload(path, file, { cacheControl: '3600', upsert: false });
+    .upload(path, resized, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
 
   if (error) throw new Error(`Cover upload failed: ${error.message}`);
 
@@ -83,7 +84,7 @@ async function uploadPdf(
   const path = `${slug}-${Date.now()}.pdf`;
   const { error } = await supabase.storage
     .from('book-pdfs')
-    .upload(path, file, { contentType: 'application/pdf', upsert: false });
+    .upload(path, file, { contentType: 'application/pdf', cacheControl: '31536000', upsert: false });
 
   if (error) throw new Error(`PDF upload failed: ${error.message}`);
   return path;
@@ -100,6 +101,17 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
   const values = parsed.data;
   let coverUrl: string | null = null;
   let pdfPath: string | null = null;
+
+  // New books join at the end of the display order (not display_order's
+  // column default of 0), so they don't jump ahead of the existing catalogue —
+  // an admin can still drag them anywhere via the reorder grid.
+  const { data: lastBook } = await supabase
+    .from('books')
+    .select('display_order')
+    .order('display_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextDisplayOrder = (lastBook?.display_order ?? -1) + 1;
 
   try {
     const coverFile = formData.get('cover_image_file') as File | null;
@@ -132,9 +144,11 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
       cover_image_url: coverUrl,
       pdf_url: pdfPath,
       publication_year: values.publication_year ?? null,
-      is_published: values.is_published,
-      published_at: values.is_published ? new Date().toISOString() : null,
+      is_published: true,
+      is_home_pinned: values.is_home_pinned,
+      published_at: new Date().toISOString(),
       created_by: adminId,
+      display_order: nextDisplayOrder,
     })
     .select('id')
     .single();
@@ -167,7 +181,7 @@ export async function updateBook(
 
   const { data: existing } = await supabase
     .from('books')
-    .select('is_published, published_at, slug, cover_image_url, pdf_url')
+    .select('published_at, slug, cover_image_url, pdf_url')
     .eq('id', id)
     .single();
 
@@ -193,8 +207,6 @@ export async function updateBook(
     return { ok: false, error: 'A cover image is required.', fieldErrors: { cover_image_url: 'Please upload a cover image.' } };
   }
 
-  const nowPublishing = values.is_published && !existing.is_published;
-
   const { error } = await supabase
     .from('books')
     .update({
@@ -206,8 +218,11 @@ export async function updateBook(
       cover_image_url: coverUrl,
       pdf_url: pdfPath,
       publication_year: values.publication_year ?? null,
-      is_published: values.is_published,
-      published_at: nowPublishing ? new Date().toISOString() : existing.published_at,
+      // A book is always published once it's saved — no draft state exists —
+      // so every edit self-heals a pre-migration draft into published too.
+      is_published: true,
+      is_home_pinned: values.is_home_pinned,
+      published_at: existing.published_at ?? new Date().toISOString(),
     })
     .eq('id', id);
 
@@ -237,27 +252,21 @@ export async function deleteBook(id: string): Promise<ActionResult> {
   redirect('/prabhat-gate/books');
 }
 
-export async function toggleBookPublished(id: string): Promise<ActionResult> {
+/**
+ * Persists a new front-to-back order for the whole catalogue in one go —
+ * called from the admin's drag-to-reorder grid with every book id in its
+ * new position. `display_order` becomes the id's index in that array.
+ */
+export async function reorderBooks(orderedIds: string[]): Promise<ActionResult> {
   const { supabase } = await assertAdmin();
-  const { data: existing } = await supabase
-    .from('books')
-    .select('is_published, published_at, slug')
-    .eq('id', id)
-    .single();
-  if (!existing) return { ok: false, error: 'Book not found.' };
-  const newPublished = !existing.is_published;
-  const { error } = await supabase
-    .from('books')
-    .update({
-      is_published: newPublished,
-      published_at: newPublished && !existing.published_at
-        ? new Date().toISOString()
-        : existing.published_at,
-    })
-    .eq('id', id);
-  if (error) return { ok: false, error: error.message };
+
+  const results = await Promise.all(
+    orderedIds.map((id, index) => supabase.from('books').update({ display_order: index }).eq('id', id))
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) return { ok: false, error: failed.error.message };
+
   revalidatePath('/books');
-  revalidatePath(`/books/${existing.slug}`);
   revalidatePath('/prabhat-gate/books');
   return { ok: true };
 }

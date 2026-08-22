@@ -15,7 +15,6 @@ export const DEFAULT_LANGUAGE: Language = 'hi';
  */
 export type SiteContentKey =
   | 'home_hero_headline'
-  | 'home_hero_subtitle'
   | 'home_welcome_heading'
   | 'home_welcome_body'
   | 'home_quote_text'

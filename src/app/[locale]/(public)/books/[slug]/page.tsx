@@ -1,9 +1,13 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
-import { getPublishedBookBySlug, getPublishedBooksStatic } from '@/lib/books';
+import { Reveal } from '@/components/ui/reveal';
+import { SplitHeadline } from '@/components/motion/split-headline';
+import { Parallax } from '@/components/motion/parallax';
+import { getPublishedBookBySlug, getPublishedBooksStatic, getPublicPdfDownloadUrl } from '@/lib/books';
 import type { Language } from '@/lib/site-content';
 
 type Props = {
@@ -50,31 +54,30 @@ export default async function BookDetailPage({ params }: Props) {
     <Container>
       <article className="py-16">
         <nav aria-label="Breadcrumb" className="mb-8 text-sm text-neutral-500">
-          <Link href="/books" className="transition-colors hover:text-crimson-800">
+          <Link href="/books" className="transition-colors hover:text-maroon-800">
             ← {tBooks('allBooks')}
           </Link>
         </nav>
 
         <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_1.6fr]">
-          <div className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-gold-500/30 bg-neutral-100 shadow-lg">
-            <div className="flex aspect-[3/4] items-center justify-center">
-              {book.cover_image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={book.cover_image_url}
-                  alt={title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="font-serif text-6xl text-neutral-300">📖</span>
-              )}
-            </div>
-          </div>
+          <Reveal>
+            <Parallax speed={0.15} className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-gold-500/30 bg-sand shadow-lg">
+              <div className="relative flex aspect-[3/4] items-center justify-center">
+                {book.cover_image_url ? (
+                  <Image src={book.cover_image_url} alt={title} fill priority sizes="320px" className="object-contain" />
+                ) : (
+                  <span className="font-serif text-6xl text-neutral-300">📖</span>
+                )}
+              </div>
+            </Parallax>
+          </Reveal>
 
-          <div>
-            <h1 className="font-serif text-4xl leading-tight tracking-tight text-crimson-800 sm:text-5xl">
-              {title}
-            </h1>
+          <Reveal delay={120}>
+            <SplitHeadline
+              as="h1"
+              text={title}
+              className="font-serif text-4xl leading-tight tracking-tight text-maroon-800 sm:text-5xl"
+            />
             {book.publication_year && (
               <p className="mt-4 text-xs uppercase tracking-widest text-gold-600">
                 {t('published', { year: book.publication_year })}
@@ -91,15 +94,15 @@ export default async function BookDetailPage({ params }: Props) {
               {book.pdf_url && (
                 <Link
                   href={`/books/${book.slug}/read`}
-                  className="rounded-full bg-crimson-800 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-crimson-900 hover:-translate-y-0.5"
+                  className="rounded-full bg-maroon-800 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-maroon-900 hover:-translate-y-0.5"
                 >
                   {t('read')}
                 </Link>
               )}
               {book.pdf_url && (
                 <a
-                  href={`/api/book-pdf/${book.slug}?download=1`}
-                  className="rounded-full border border-gold-500 px-6 py-2.5 text-sm font-medium text-crimson-800 transition-all hover:bg-gold-400/10 hover:-translate-y-0.5"
+                  href={getPublicPdfDownloadUrl(book.pdf_url, book.slug, book.title_en)}
+                  className="rounded-full border border-gold-500 px-6 py-2.5 text-sm font-medium text-maroon-800 transition-all hover:bg-gold-400/10 hover:-translate-y-0.5"
                 >
                   {t('download')}
                 </a>
@@ -109,13 +112,13 @@ export default async function BookDetailPage({ params }: Props) {
                   href={book.purchase_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full border border-neutral-300 px-6 py-2.5 text-sm font-medium text-neutral-700 transition-all hover:bg-neutral-100 hover:-translate-y-0.5"
+                  className="rounded-full border border-gold-500/40 px-6 py-2.5 text-sm font-medium text-maroon-800 transition-all hover:bg-gold-500/10 hover:-translate-y-0.5"
                 >
                   {t('purchase')}
                 </a>
               )}
             </div>
-          </div>
+          </Reveal>
         </div>
       </article>
     </Container>

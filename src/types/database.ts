@@ -79,6 +79,48 @@ export type Database = {
           },
         ]
       }
+      about_section_videos: {
+        Row: {
+          about_section_id: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          youtube_video_id: string
+        }
+        Insert: {
+          about_section_id: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          youtube_video_id: string
+        }
+        Update: {
+          about_section_id?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          youtube_video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "about_section_videos_about_section_id_fkey"
+            columns: ["about_section_id"]
+            isOneToOne: false
+            referencedRelation: "about_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "about_section_videos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -160,8 +202,10 @@ export type Database = {
           created_by: string | null
           description_en: string | null
           description_hi: string | null
+          display_order: number
           download_url: string | null
           id: string
+          is_home_pinned: boolean
           is_published: boolean
           pdf_url: string | null
           preview_pdf_url: string | null
@@ -180,8 +224,10 @@ export type Database = {
           created_by?: string | null
           description_en?: string | null
           description_hi?: string | null
+          display_order?: number
           download_url?: string | null
           id?: string
+          is_home_pinned?: boolean
           is_published?: boolean
           pdf_url?: string | null
           preview_pdf_url?: string | null
@@ -200,8 +246,10 @@ export type Database = {
           created_by?: string | null
           description_en?: string | null
           description_hi?: string | null
+          display_order?: number
           download_url?: string | null
           id?: string
+          is_home_pinned?: boolean
           is_published?: boolean
           pdf_url?: string | null
           preview_pdf_url?: string | null
@@ -320,6 +368,8 @@ export type Database = {
           venue_address: string | null
           venue_map_url: string | null
           venue_name: string | null
+          youtube_url: string | null
+          youtube_video_id: string | null
         }
         Insert: {
           cover_image_url?: string | null
@@ -341,6 +391,8 @@ export type Database = {
           venue_address?: string | null
           venue_map_url?: string | null
           venue_name?: string | null
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Update: {
           cover_image_url?: string | null
@@ -362,6 +414,8 @@ export type Database = {
           venue_address?: string | null
           venue_map_url?: string | null
           venue_name?: string | null
+          youtube_url?: string | null
+          youtube_video_id?: string | null
         }
         Relationships: [
           {

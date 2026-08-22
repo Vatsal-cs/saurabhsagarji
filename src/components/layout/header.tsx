@@ -1,11 +1,27 @@
 import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/container';
 import { getSiteContent } from '@/lib/site-content';
 import { getPublishedAboutSections } from '@/lib/about';
 import type { Language } from '@/lib/site-content';
 import { MobileNav } from './mobile-nav';
-import { AboutDropdown } from './about-dropdown';
+import { DesktopNav } from './desktop-nav';
+import { HeaderShell } from './header-shell';
+
+/** Breaks the site name onto two lines right before "Saurabh"/"सौरभ", if present. */
+function splitSiteName(name: string) {
+  const marker = name.includes('सौरभ') ? 'सौरभ' : name.includes('Saurabh') ? 'Saurabh' : null;
+  if (!marker) return name;
+  const idx = name.indexOf(marker);
+  return (
+    <>
+      {name.slice(0, idx).trim()}
+      <br />
+      {name.slice(idx)}
+    </>
+  );
+}
 
 export async function Header({ locale }: { locale: string }) {
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
@@ -28,39 +44,28 @@ export async function Header({ locale }: { locale: string }) {
   ] as const;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gold-500/30 bg-ivory/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-gold-500/20 bg-maroon-950/95 shadow-[0_1px_24px_-4px_rgba(0,0,0,0.5)] backdrop-blur-xl">
       <Container>
-        <div className="flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="group flex shrink-0 items-center gap-2">
-            <span className="text-gold-500 transition-transform duration-500 group-hover:rotate-90">☸</span>
-            <span className="whitespace-nowrap font-serif text-base tracking-tight text-crimson-800 sm:text-lg">
-              {siteName}
+        <HeaderShell>
+          <Link href="/" className="group flex min-w-0 items-center gap-2">
+            <Image
+              src="https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg"
+              alt=""
+              width={24}
+              height={24}
+              className="h-6 w-6 shrink-0 rounded-full border border-gold-400/50 object-cover"
+            />
+            <span className="font-serif text-xs leading-tight tracking-tight text-ivory sm:text-sm">
+              {splitSiteName(siteName)}
             </span>
           </Link>
 
-          <nav aria-label="Main navigation" className="hidden md:flex md:flex-1 md:items-center md:justify-end">
-            <ul className="flex items-center gap-0.5 text-sm text-ink/70">
-              <li>
-                <Link
-                  href="/"
-                  className="relative rounded-md px-3 py-2 font-serif transition-colors hover:text-crimson-800 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform after:duration-300 hover:after:scale-x-100"
-                >
-                  {t('home')}
-                </Link>
-              </li>
-              <AboutDropdown label={t('about')} items={aboutItems} />
-              {restItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="relative rounded-md px-3 py-2 font-serif transition-colors hover:text-crimson-800 after:absolute after:bottom-1 after:left-3 after:right-3 after:h-px after:origin-left after:scale-x-0 after:bg-gold-500 after:transition-transform after:duration-300 hover:after:scale-x-100"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <DesktopNav
+            homeItem={{ href: '/', label: t('home') }}
+            aboutLabel={t('about')}
+            aboutItems={aboutItems}
+            restItems={restItems.map((i) => ({ href: i.href, label: i.label }))}
+          />
 
           <MobileNav
             homeItem={{ href: '/', label: t('home') }}
@@ -68,7 +73,7 @@ export async function Header({ locale }: { locale: string }) {
             aboutItems={aboutItems}
             restItems={restItems.map((i) => ({ href: i.href, label: i.label }))}
           />
-        </div>
+        </HeaderShell>
       </Container>
     </header>
   );

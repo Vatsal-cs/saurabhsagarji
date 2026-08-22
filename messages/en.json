@@ -3,8 +3,8 @@
     "home": "Home",
     "about": "About",
     "bhajans": "Bhajans",
-    "teachings": "Teachings",
-    "books": "Books",
+    "teachings": "Discourses",
+    "books": "Publications",
     "events": "Events",
     "gallery": "Gallery",
     "contact": "Contact"
@@ -13,17 +13,19 @@
     "tagline": "Truth • Non-violence • Non-attachment"
   },
   "Home": {
-    "ctaBooks": "Books",
-    "ctaTeachings": "Teachings",
+    "ctaBooks": "Publications",
+    "ctaTeachings": "Discourses",
     "portraitAlt": "Guruji's Portrait",
+    "manshapuranAlt": "Manshapuran Mahavir Bhagwan",
+    "acharyaAlt": "Acharya Ji",
     "portraitSoon": "Portrait coming soon",
     "readMore": "Read more",
     "exploreHeading": "Explore",
-    "exploreSubtitle": "Explore the teachings"
+    "exploreSubtitle": "Explore the discourses"
   },
   "Cards": {
-    "booksTitle": "Sacred Books",
-    "booksDesc": "Guruji's writings on spirituality, devotion, and the path to liberation.",
+    "booksTitle": "Sacred Publications",
+    "booksDesc": "Acharya Shri's writings on spirituality, devotion, and the path to liberation.",
     "teachingsTitle": "Discourses",
     "teachingsDesc": "Recorded pravachans and spiritual guidance for daily life.",
     "bhajansTitle": "Devotional Songs",
@@ -31,12 +33,11 @@
     "exploreCta": "Explore"
   },
   "Books": {
-    "eyebrow": "Books",
-    "heading": "Guruji's Books",
-    "subtitle": "Explore Guruji's writings on spirituality, devotion, and inner peace.",
-    "emptyTitle": "No books available yet",
-    "emptyBody": "Books will be added soon.",
-    "allBooks": "All books"
+    "eyebrow": "Publications",
+    "heading": "Scriptures & Rituals Composed and Re-Translated by Acharya Shri 108 Saurabh Sagar Ji MahaMuniraj",
+    "emptyTitle": "No publications available yet",
+    "emptyBody": "Publications will be added soon.",
+    "allBooks": "All publications"
   },
   "BookDetail": {
     "read": "Read",
@@ -47,10 +48,34 @@
   "ComingSoon": {
     "eyebrow": "Coming Soon",
     "bhajans": "Bhajans",
-    "teachings": "Teachings",
+    "teachings": "Discourses",
     "events": "Events",
     "gallery": "Gallery",
     "contact": "Contact"
+  },
+  "Teachings": {
+    "liveNow": "Live Now",
+    "liveNowCta": "Watch the live discourse",
+    "latestVideos": "Latest Videos",
+    "noVideosTitle": "Videos are on the way",
+    "noVideosBody": "Watch all our discourses directly on YouTube in the meantime.",
+    "visitChannel": "Visit YouTube Channel",
+    "watchShorts": "Watch Shorts",
+    "instagramHeading": "Follow us on Instagram",
+    "instagramBody": "Photos and moments from Guruji's journey.",
+    "instagramCta": "Follow on Instagram",
+    "comingSoon": "Coming Soon"
+  },
+  "Contact": {
+    "eyebrow": "Contact",
+    "heading": "Contact",
+    "updatesHeading": "For Updates on Maharaj Ji",
+    "updatesBody": "For the latest updates regarding Maharaj Ji, please contact:",
+    "callCta": "Call",
+    "donationsHeading": "Donations",
+    "donationsBody": "Scan to donate directly via UPI, or use the bank details shown on each card.",
+    "qrJinalayaLabel": "Shri Manshapurn Mahavir Jinalaya",
+    "qrHospitalLabel": "Jeevan Asha Hospital"
   },
   "NotFound": {
     "title": "Page not found",

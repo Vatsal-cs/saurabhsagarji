@@ -31,7 +31,7 @@ export function LanguageToggle() {
         aria-pressed={locale === 'hi'}
         className={
           'flex h-9 w-9 items-center justify-center rounded-full font-serif text-base transition-colors ' +
-          (locale === 'hi' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
+          (locale === 'hi' ? 'bg-maroon-800 text-ivory' : 'text-neutral-500 hover:text-maroon-800')
         }
       >
         अ
@@ -42,7 +42,7 @@ export function LanguageToggle() {
         aria-pressed={locale === 'en'}
         className={
           'flex h-9 w-9 items-center justify-center rounded-full font-serif-en text-sm transition-colors ' +
-          (locale === 'en' ? 'bg-crimson-800 text-ivory' : 'text-neutral-500 hover:text-crimson-800')
+          (locale === 'en' ? 'bg-maroon-800 text-ivory' : 'text-neutral-500 hover:text-maroon-800')
         }
       >
         Aa
