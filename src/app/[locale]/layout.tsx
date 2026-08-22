@@ -28,6 +28,7 @@ export async function generateMetadata({
     // in production if the env var were ever missing on Vercel.
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://saurabhsagarji.in'),
     robots: { index: true, follow: true },
+    verification: { google: 'p_Apvra5ijYtyq52Uv0UJeYqnfsOpzXeocsB00rMSaQ' },
     openGraph: {
       title: `${c.site_name} — ${c.site_tagline}`,
       description: c.site_tagline,
