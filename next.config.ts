@@ -16,17 +16,15 @@ const nextConfig: NextConfig = {
   // follow sharp's dynamically-loaded native binary into the deployed
   // function bundle unless told to explicitly, which is what causes the
   // "libvips-cpp.so: cannot open shared object file" runtime error even
-  // when the binary installed correctly during the build.
+  // when the binary installed correctly during the build. A broad
+  // `@img/**/*` glob here previously pulled in ~200MB (every platform's
+  // binary — Windows, Android, musl, ARM, ...) across every route, which
+  // is almost certainly what crashed the build. This targets only the
+  // exact Linux x64 (glibc) package Vercel's runtime actually needs.
   outputFileTracingIncludes: {
     '/**/*': [
-      './node_modules/sharp/**/*',
-      './node_modules/@img/**/*',
-      // pnpm stores the actual platform binaries here, only symlinking the
-      // current build platform's copy into the flat paths above — including
-      // the nested store directly is a safety net in case the symlinked
-      // path alone isn't enough for the tracer to follow.
-      './node_modules/.pnpm/@img+sharp-linux-x64@*/**/*',
-      './node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/**/*',
+      './node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
+      './node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
     ],
   },
 
