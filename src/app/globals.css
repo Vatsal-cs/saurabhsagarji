@@ -128,20 +128,6 @@ html {
   .animate-spin-border-rotate { animation: none; }
 }
 
-/* A glossy light band sweeping across a card's surface, like a reflection
-   passing over glass — layered on top of the spin-border for a card that
-   feels alive at rest, not just around its edge. */
-@keyframes shimmer-sweep {
-  0%, 15% { left: -45%; }
-  85%, 100% { left: 130%; }
-}
-.animate-shimmer-sweep {
-  animation: shimmer-sweep 4.5s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-shimmer-sweep { display: none; }
-}
-
 /* A single bulb in a chasing marquee-light border, like the bulb strips around
    an old cinema sign or a festival stage — each bulb runs the same flash cycle,
    offset by animation-delay per bulb, so together they read as light running
@@ -173,61 +159,3 @@ html {
   .animate-eq-bar { animation: none; transform: scaleY(0.6); }
 }
 
-/* A bright, unmistakable band of light passing through sacred text — like a
-   shimmer/skeleton-loading highlight, repurposed as divine light sweeping over the
-   mangalacharan rather than a UI loading state. Base color matches the gold-400 used for
-   the portrait captions elsewhere on the hero, with a near-white core at the peak for
-   contrast; a narrow peak (48–52%) keeps it a crisp band rather than a slow fade. */
-@keyframes text-shimmer {
-  from { background-position: 250% 0; }
-  to { background-position: -250% 0; }
-}
-.animate-text-shimmer {
-  background-image: linear-gradient(
-    100deg,
-    var(--color-gold-400) 35%,
-    #fffdf2 50%,
-    var(--color-gold-400) 65%
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: text-shimmer 5.5s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-text-shimmer {
-    animation: none;
-    background: none;
-    -webkit-text-fill-color: unset;
-    color: var(--color-gold-400);
-  }
-}
-
-/* Slow sweep for the hero name — same gold-400 base as the mangalacharan shimmer and the
-   portrait captions, just a slower cycle so the large headline doesn't feel busy. */
-@keyframes yellow-shimmer {
-  from { background-position: 250% 0; }
-  to { background-position: -250% 0; }
-}
-.animate-yellow-shimmer {
-  background-image: linear-gradient(
-    100deg,
-    var(--color-gold-400) 35%,
-    #fffdf2 50%,
-    var(--color-gold-400) 65%
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: yellow-shimmer 7s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-yellow-shimmer {
-    animation: none;
-    background: none;
-    -webkit-text-fill-color: unset;
-    color: var(--color-gold-400);
-  }
-}

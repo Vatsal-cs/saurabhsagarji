@@ -116,7 +116,7 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
         <div className="mt-0 min-[768px]:mt-2 min-[900px]:-mt-14">
           <motion.h1
             variants={fadeUp}
-            className="animate-yellow-shimmer mx-auto max-w-3xl text-center text-balance font-serif text-lg leading-tight tracking-tight sm:text-2xl md:text-3xl"
+            className="mx-auto max-w-3xl text-center text-balance font-serif text-lg leading-tight tracking-tight text-gold-400 sm:text-2xl md:text-3xl"
           >
             {headline}
           </motion.h1>

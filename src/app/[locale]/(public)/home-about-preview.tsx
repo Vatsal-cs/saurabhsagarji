@@ -56,10 +56,6 @@ export function HomeAboutPreview({
         >
           <SpinBorder>
           <div className="relative flex overflow-hidden bg-gradient-to-br from-ivory via-ivory to-sand/60">
-            <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
-              <div className="animate-shimmer-sweep absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/70 to-transparent mix-blend-overlay" />
-            </div>
-
             {/* Gilt corner brackets on the card frame — an ornamental "sealed
                 manuscript" touch instead of the plain rectangle the flat
                 cream panel otherwise reads as. */}

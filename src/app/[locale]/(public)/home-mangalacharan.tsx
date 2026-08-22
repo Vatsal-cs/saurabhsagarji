@@ -56,7 +56,7 @@ export function HomeMangalacharan({ lines }: { lines: string[] }) {
           <motion.p
             key={text}
             variants={line}
-            className="animate-text-shimmer font-serif text-sm font-semibold leading-relaxed min-[640px]:text-base min-[768px]:text-lg min-[900px]:text-base"
+            className="font-serif text-sm font-semibold leading-relaxed text-gold-400 min-[640px]:text-base min-[768px]:text-lg min-[900px]:text-base"
           >
             {text}
           </motion.p>
