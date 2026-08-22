@@ -25,7 +25,12 @@ export function Reveal({
   const [forced, setForced] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setForced(true), 2000);
+    // 2000ms fired even on sections well below the fold — before anyone
+    // could plausibly have scrolled to them, so it wasn't acting as a
+    // last-resort safety net, it was the primary (broken) reveal path on
+    // every load. Matches the same 8000ms value already used for the same
+    // failsafe purpose in useInView.
+    const t = setTimeout(() => setForced(true), 8000);
     return () => clearTimeout(t);
   }, []);
 

@@ -23,14 +23,15 @@ const ARC = 14;
 const DRAG_CLICK_THRESHOLD = 6;
 
 export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: Language }) {
-  const maxIndex = books.length - 1;
+  const count = books.length;
+  // No min/max clamp — progress is free to run past either end. Every place
+  // that needs an actual book (the current title, wrapping the per-card
+  // offset below) reduces it mod `count` instead, so dragging or arrowing
+  // past the last book loops straight back to the first and vice versa,
+  // rather than stopping dead.
   const [progress, setProgress] = useState(0);
   const progressRef = useRef(0);
   const hasDraggedRef = useRef(false);
-
-  function clamp(v: number) {
-    return Math.min(Math.max(v, 0), maxIndex);
-  }
 
   function handleDragStart() {
     hasDraggedRef.current = false;
@@ -40,13 +41,13 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
     if (Math.abs(info.offset.x) > DRAG_CLICK_THRESHOLD) {
       hasDraggedRef.current = true;
     }
-    const next = clamp(progressRef.current - info.delta.x / SPACING);
+    const next = progressRef.current - info.delta.x / SPACING;
     progressRef.current = next;
     setProgress(next);
   }
 
   function handlePanEnd() {
-    const snapped = clamp(Math.round(progressRef.current));
+    const snapped = Math.round(progressRef.current);
     progressRef.current = snapped;
     setProgress(snapped);
   }
@@ -56,7 +57,7 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
   }
 
   function step(delta: 1 | -1) {
-    const next = clamp(Math.round(progressRef.current) + delta);
+    const next = Math.round(progressRef.current) + delta;
     progressRef.current = next;
     setProgress(next);
   }
@@ -132,26 +133,24 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
               element) so a click never gets mistaken for the start of a drag — an easier,
               more obvious way to browse for anyone who wouldn't think to drag. */}
           <div className="relative mt-6">
-            {maxIndex > 0 && (
+            {count > 1 && (
               <button
                 type="button"
                 onClick={() => step(-1)}
-                disabled={Math.round(progress) <= 0}
                 aria-label={lang === 'en' ? 'Previous book' : 'पिछली पुस्तक'}
-                className="absolute left-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-x-0.5 hover:-translate-y-1/2 hover:border-gold-500 hover:bg-ivory disabled:pointer-events-none disabled:opacity-0 sm:left-4 sm:h-12 sm:w-12"
+                className="absolute left-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-x-0.5 hover:-translate-y-1/2 hover:border-gold-500 hover:bg-ivory sm:left-4 sm:h-12 sm:w-12"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
             )}
-            {maxIndex > 0 && (
+            {count > 1 && (
               <button
                 type="button"
                 onClick={() => step(1)}
-                disabled={Math.round(progress) >= maxIndex}
                 aria-label={lang === 'en' ? 'Next book' : 'अगली पुस्तक'}
-                className="absolute right-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-y-1/2 hover:translate-x-0.5 hover:border-gold-500 hover:bg-ivory disabled:pointer-events-none disabled:opacity-0 sm:right-4 sm:h-12 sm:w-12"
+                className="absolute right-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-y-1/2 hover:translate-x-0.5 hover:border-gold-500 hover:bg-ivory sm:right-4 sm:h-12 sm:w-12"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
@@ -183,7 +182,11 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
             />
 
             {books.map((book, i) => {
-              const offset = i - progress;
+              // Shortest signed distance around the circular deck — book 0
+              // and the last book are neighbors, not opposite ends, so the
+              // fan wraps smoothly past either edge instead of stopping.
+              let offset = i - progress;
+              offset -= Math.round(offset / count) * count;
               const abs = Math.abs(offset);
               if (abs > MAX_VISIBLE) return null;
               const title = lang === 'en' && book.title_en ? book.title_en : book.title_hi;
@@ -235,13 +238,14 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
           </div>
 
           {/* current book's title, since the fan itself has no room for captions */}
-          {books[Math.round(progress)] && (
-            <p className="mt-2 text-center font-serif text-base text-maroon-800 sm:text-lg">
-              {lang === 'en' && books[Math.round(progress)].title_en
-                ? books[Math.round(progress)].title_en
-                : books[Math.round(progress)].title_hi}
-            </p>
-          )}
+          {(() => {
+            const currentBook = books[((Math.round(progress) % count) + count) % count];
+            return currentBook ? (
+              <p className="mt-2 text-center font-serif text-base text-maroon-800 sm:text-lg">
+                {lang === 'en' && currentBook.title_en ? currentBook.title_en : currentBook.title_hi}
+              </p>
+            ) : null;
+          })()}
         </Reveal>
       </div>
     </section>
