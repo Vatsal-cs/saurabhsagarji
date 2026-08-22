@@ -84,7 +84,7 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
               visually "alive" so it draws the eye on its own. */}
           <div className="relative shrink-0">
             <div
-              className="absolute -inset-1.5 animate-pulse rounded-full bg-gold-400/50 blur-md"
+              className="pointer-events-none absolute -inset-1.5 animate-pulse rounded-full bg-gold-400/50 blur-md"
               aria-hidden="true"
             />
             <div
