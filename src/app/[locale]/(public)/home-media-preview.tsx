@@ -180,7 +180,6 @@ function MediaThumb({ item, lang, index }: { item: MediaItem; lang: Language; in
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="absolute h-14 w-14 animate-ping rounded-full border-2 border-gold-500/70 [animation-duration:1.8s]" />
             <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-gold-400 shadow-lg transition-transform duration-300 group-hover:scale-110">
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 translate-x-0.5 text-maroon-900">
                 <path d="M8 5v14l11-7z" />

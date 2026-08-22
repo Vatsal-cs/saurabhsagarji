@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { onLayoutSettled } from '@/lib/dom-ready';
+import { cn } from '@/lib/cn';
 
 const container: Variants = {
   hidden: {},
@@ -35,6 +37,31 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
   const t = useTranslations('Home');
   const portraitRef = useRef<HTMLImageElement>(null);
   const [isPortraitReady, setIsPortraitReady] = useState(false);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const [isHeadlineVisible, setIsHeadlineVisible] = useState(false);
+
+  // The shimmer sweep animates `background-position`, which forces a repaint
+  // every frame — fine for a few seconds, wasteful running forever on a name
+  // that's often scrolled out of view. Only run it while the headline is
+  // actually on screen; toggles both ways (unlike a one-shot reveal), so it
+  // stops the moment it scrolls past and resumes if scrolled back.
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el) return;
+    let observer: IntersectionObserver | undefined;
+
+    const cancelSettle = onLayoutSettled(() => {
+      observer = new IntersectionObserver(([entry]) => setIsHeadlineVisible(entry.isIntersecting), {
+        threshold: 0.3,
+      });
+      observer.observe(el);
+    });
+
+    return () => {
+      cancelSettle();
+      observer?.disconnect();
+    };
+  }, []);
 
   // The cinematic entrance only plays at the min-[900px] desktop layout; on
   // mobile/tablet the photo just appears immediately (zero-duration
@@ -115,8 +142,12 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
 
         <div className="mt-0 min-[768px]:mt-2 min-[900px]:-mt-14">
           <motion.h1
+            ref={headlineRef}
             variants={fadeUp}
-            className="mx-auto max-w-3xl text-center text-balance font-serif text-lg leading-tight tracking-tight text-gold-400 sm:text-2xl md:text-3xl"
+            className={cn(
+              'mx-auto max-w-3xl text-center text-balance font-serif text-lg leading-tight tracking-tight sm:text-2xl md:text-3xl',
+              isHeadlineVisible ? 'animate-yellow-shimmer' : 'text-gold-400'
+            )}
           >
             {headline}
           </motion.h1>
