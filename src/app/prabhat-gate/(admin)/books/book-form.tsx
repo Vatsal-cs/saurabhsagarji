@@ -8,6 +8,12 @@ import type { Database } from '@/types/database';
 
 type Book = Database['public']['Tables']['books']['Row'];
 
+// Kept in sync with the server-side limits in src/lib/actions/books.ts —
+// rejecting oversized files client-side, before submit, is what actually
+// matters (see CoverDropzone's applyFile for why).
+const MAX_COVER_BYTES = 5 * 1024 * 1024;
+const MAX_PDF_BYTES = 50 * 1024 * 1024;
+
 type Props = {
   book?: Book;
   action: (prev: ActionResult | null, formData: FormData) => Promise<ActionResult>;
@@ -162,12 +168,26 @@ function CoverDropzone({
 }) {
   const [preview, setPreview] = useState<string | null>(currentUrl);
   const [dragging, setDragging] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Server Actions send the whole file through JS rather than a native
+  // streaming form POST, so a large camera-original image gets loaded fully
+  // into the browser's memory the moment the form submits — enough to crash
+  // the tab before the server-side 5MB check ever runs. Rejecting oversized
+  // files here, before they're even attached to the input, is what actually
+  // prevents that (the server-side check alone is too late).
   const applyFile = useCallback(
     (file: File | undefined) => {
       if (!file) return;
       if (!file.type.startsWith('image/')) return;
+      if (file.size > MAX_COVER_BYTES) {
+        setSizeError(`That image is ${(file.size / (1024 * 1024)).toFixed(1)} MB — covers must be under 5 MB.`);
+        if (inputRef.current) inputRef.current.value = '';
+        onCoverChange(false);
+        return;
+      }
+      setSizeError(null);
       setPreview(URL.createObjectURL(file));
       onCoverChange(true);
     },
@@ -191,6 +211,8 @@ function CoverDropzone({
     }
   }
 
+  const displayError = error ?? sizeError ?? undefined;
+
   return (
     <div id="cover-zone">
       <p className="mb-2 text-sm font-medium text-neutral-700">
@@ -203,7 +225,7 @@ function CoverDropzone({
         onDrop={onDrop}
         className={
           'group relative flex aspect-[3/4] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition-all ' +
-          (error
+          (displayError
             ? 'border-red-400 bg-red-50'
             : dragging
             ? 'border-gold-500 bg-gold-400/10'
@@ -238,7 +260,7 @@ function CoverDropzone({
         onChange={onInput}
         className="hidden"
       />
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {displayError && <p className="mt-2 text-xs text-red-600">{displayError}</p>}
     </div>
   );
 }
@@ -249,11 +271,18 @@ function CoverDropzone({
 function PdfDropzone({ currentPath }: { currentPath: string | null }) {
   const [filename, setFilename] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function applyFile(file: File | undefined) {
     if (!file) return;
     if (file.type !== 'application/pdf') return;
+    if (file.size > MAX_PDF_BYTES) {
+      setSizeError(`That PDF is ${(file.size / (1024 * 1024)).toFixed(1)} MB — must be under 50 MB.`);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+    setSizeError(null);
     setFilename(file.name);
   }
 
@@ -281,7 +310,9 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
         onDrop={onDrop}
         className={
           'flex aspect-[3/4] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all ' +
-          (dragging
+          (sizeError
+            ? 'border-red-400 bg-red-50'
+            : dragging
             ? 'border-gold-500 bg-gold-400/10'
             : 'border-neutral-300 bg-neutral-50 hover:border-gold-500 hover:bg-gold-400/5')
         }
@@ -311,6 +342,7 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
         onChange={(e) => applyFile(e.target.files?.[0])}
         className="hidden"
       />
+      {sizeError && <p className="mt-2 text-xs text-red-600">{sizeError}</p>}
     </div>
   );
 }
