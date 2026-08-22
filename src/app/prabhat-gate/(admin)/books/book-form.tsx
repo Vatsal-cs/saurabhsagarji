@@ -3,15 +3,20 @@
 import { useActionState, useState, useRef, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 import type { ActionResult } from '@/lib/actions/books';
 import type { Database } from '@/types/database';
 
 type Book = Database['public']['Tables']['books']['Row'];
 
-// Kept in sync with the server-side limits in src/lib/actions/books.ts —
-// rejecting oversized files client-side, before submit, is what actually
-// matters (see CoverDropzone's applyFile for why).
-const MAX_COVER_BYTES = 5 * 1024 * 1024;
+// The cover still goes through the Server Action (it needs server-side
+// resizing), whose payload has to clear Vercel's hard ~4.5MB request body
+// limit — kept well under that here, since that limit isn't configurable
+// and applies regardless of the app's own bodySizeLimit setting. The PDF
+// doesn't need resizing, so it skips the Server Action entirely (uploaded
+// straight to Storage from the browser instead — see PdfDropzone) and can
+// keep the app's real 50MB limit.
+const MAX_COVER_BYTES = 4 * 1024 * 1024;
 const MAX_PDF_BYTES = 50 * 1024 * 1024;
 
 type Props = {
@@ -26,6 +31,10 @@ export function BookForm({ book, action }: Props) {
   // Track whether a cover exists (either already on the book, or freshly picked)
   const [hasCover, setHasCover] = useState<boolean>(!!book?.cover_image_url);
   const [coverError, setCoverError] = useState<string | null>(null);
+  // The PDF uploads to Storage directly from PdfDropzone, ahead of the actual
+  // form submit — this blocks the submit button while that's in flight, so
+  // the action never fires with an empty pdf_path mid-upload.
+  const [pdfUploading, setPdfUploading] = useState(false);
 
   function handleSubmitGuard(e: React.FormEvent<HTMLFormElement>) {
     if (!hasCover) {
@@ -33,6 +42,10 @@ export function BookForm({ book, action }: Props) {
       setCoverError('A cover image is required.');
       // scroll the cover zone into view
       document.getElementById('cover-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (pdfUploading) {
+      e.preventDefault();
     }
   }
 
@@ -60,7 +73,7 @@ export function BookForm({ book, action }: Props) {
             }}
             error={coverError ?? (state && !state.ok ? state.fieldErrors?.cover_image_url : undefined)}
           />
-          <PdfDropzone currentPath={book?.pdf_url ?? null} />
+          <PdfDropzone currentPath={book?.pdf_url ?? null} onUploadingChange={setPdfUploading} />
         </div>
       </Section>
 
@@ -148,7 +161,7 @@ export function BookForm({ book, action }: Props) {
         >
           ← Back to all books
         </Link>
-        <SubmitButton isEdit={isEdit} />
+        <SubmitButton isEdit={isEdit} pdfUploading={pdfUploading} />
       </div>
     </form>
   );
@@ -182,7 +195,7 @@ function CoverDropzone({
       if (!file) return;
       if (!file.type.startsWith('image/')) return;
       if (file.size > MAX_COVER_BYTES) {
-        setSizeError(`That image is ${(file.size / (1024 * 1024)).toFixed(1)} MB — covers must be under 5 MB.`);
+        setSizeError(`That image is ${(file.size / (1024 * 1024)).toFixed(1)} MB — covers must be under 4 MB.`);
         if (inputRef.current) inputRef.current.value = '';
         onCoverChange(false);
         return;
@@ -248,7 +261,7 @@ function CoverDropzone({
               ⬆
             </div>
             <p className="text-sm font-medium text-neutral-700">Drop cover here</p>
-            <p className="mt-1 text-xs text-neutral-500">or click to browse · JPG / PNG · max 5&nbsp;MB</p>
+            <p className="mt-1 text-xs text-neutral-500">or click to browse · JPG / PNG · max 4&nbsp;MB</p>
           </div>
         )}
       </div>
@@ -268,13 +281,26 @@ function CoverDropzone({
 /* ============================================================
    PDF dropzone — drag & drop, filename chip
    ============================================================ */
-function PdfDropzone({ currentPath }: { currentPath: string | null }) {
+function PdfDropzone({
+  currentPath,
+  onUploadingChange,
+}: {
+  currentPath: string | null;
+  onUploadingChange: (uploading: boolean) => void;
+}) {
   const [filename, setFilename] = useState<string | null>(null);
+  const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [sizeError, setSizeError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function applyFile(file: File | undefined) {
+  // Uploaded straight to Storage from the browser rather than through the
+  // form's Server Action — a book PDF routinely blows past Vercel's hard
+  // ~4.5MB request body limit, which a Server Action's payload is subject
+  // to no matter what the app's own 50MB limit says. Only the resulting
+  // storage path (a short string) travels through the actual form submit.
+  async function applyFile(file: File | undefined) {
     if (!file) return;
     if (file.type !== 'application/pdf') return;
     if (file.size > MAX_PDF_BYTES) {
@@ -284,11 +310,32 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
     }
     setSizeError(null);
     setFilename(file.name);
+    setUploadedPath(null);
+    setUploading(true);
+    onUploadingChange(true);
+
+    const path = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.pdf`;
+    const supabase = createClient();
+    const { error } = await supabase.storage
+      .from('book-pdfs')
+      .upload(path, file, { contentType: 'application/pdf', cacheControl: '31536000', upsert: false });
+
+    setUploading(false);
+    onUploadingChange(false);
+
+    if (error) {
+      setSizeError(`Upload failed: ${error.message}`);
+      setFilename(null);
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+    setUploadedPath(path);
   }
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragging(false);
+    if (uploading) return;
     const file = e.dataTransfer.files?.[0];
     if (file && inputRef.current) {
       const dt = new DataTransfer();
@@ -304,12 +351,13 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
         Book PDF {!currentPath && <span className="text-red-500">*</span>}
       </p>
       <div
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onClick={() => !uploading && inputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); if (!uploading) setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={
-          'flex aspect-[3/4] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all ' +
+          'flex aspect-[3/4] flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all ' +
+          (uploading ? 'cursor-wait ' : 'cursor-pointer ') +
           (sizeError
             ? 'border-red-400 bg-red-50'
             : dragging
@@ -320,7 +368,9 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-crimson-800/10 text-2xl">
           📄
         </div>
-        {filename ? (
+        {uploading ? (
+          <p className="text-sm font-medium text-neutral-700">Uploading…</p>
+        ) : filename && uploadedPath ? (
           <p className="text-sm font-medium text-emerald-700">✓ {filename}</p>
         ) : currentPath ? (
           <>
@@ -336,12 +386,15 @@ function PdfDropzone({ currentPath }: { currentPath: string | null }) {
       </div>
       <input
         ref={inputRef}
-        name="pdf_file"
         type="file"
         accept="application/pdf"
+        disabled={uploading}
         onChange={(e) => applyFile(e.target.files?.[0])}
         className="hidden"
       />
+      {/* The file itself never travels through the form submit — only the
+          already-uploaded storage path does. */}
+      <input type="hidden" name="pdf_path" value={uploadedPath ?? ''} />
       {sizeError && <p className="mt-2 text-xs text-red-600">{sizeError}</p>}
     </div>
   );
@@ -364,15 +417,19 @@ function SlugField({ defaultValue, error }: { defaultValue?: string; error?: str
   );
 }
 
-function SubmitButton({ isEdit }: { isEdit: boolean }) {
+function SubmitButton({ isEdit, pdfUploading }: { isEdit: boolean; pdfUploading: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || pdfUploading}
       className="rounded-full bg-crimson-800 px-7 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-crimson-900 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
     >
-      {isEdit ? (pending ? 'Saving…' : 'Save changes') : pending ? 'Publishing…' : 'Publish book'}
+      {pdfUploading
+        ? 'Uploading PDF…'
+        : isEdit
+        ? (pending ? 'Saving…' : 'Save changes')
+        : pending ? 'Publishing…' : 'Publish book'}
     </button>
   );
 }

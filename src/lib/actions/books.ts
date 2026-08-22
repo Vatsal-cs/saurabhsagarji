@@ -57,7 +57,7 @@ async function uploadCover(
   file: File,
   slug: string
 ): Promise<string> {
-  if (file.size > 5 * 1024 * 1024) throw new Error('Cover image must be under 5 MB');
+  if (file.size > 4 * 1024 * 1024) throw new Error('Cover image must be under 4 MB');
   if (!file.type.startsWith('image/')) throw new Error('Cover must be an image file');
 
   const resized = await resizeForUpload(file);
@@ -71,23 +71,6 @@ async function uploadCover(
 
   const { data } = supabase.storage.from('book-covers').getPublicUrl(path);
   return data.publicUrl;
-}
-
-async function uploadPdf(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  file: File,
-  slug: string
-): Promise<string> {
-  if (file.size > 50 * 1024 * 1024) throw new Error('PDF must be under 50 MB');
-  if (file.type !== 'application/pdf') throw new Error('File must be a PDF');
-
-  const path = `${slug}-${Date.now()}.pdf`;
-  const { error } = await supabase.storage
-    .from('book-pdfs')
-    .upload(path, file, { contentType: 'application/pdf', cacheControl: '31536000', upsert: false });
-
-  if (error) throw new Error(`PDF upload failed: ${error.message}`);
-  return path;
 }
 
 export async function createBook(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
@@ -118,13 +101,16 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
     if (coverFile && coverFile.size > 0) {
       coverUrl = await uploadCover(supabase, coverFile, values.slug);
     }
-    const pdfFile = formData.get('pdf_file') as File | null;
-    if (pdfFile && pdfFile.size > 0) {
-      pdfPath = await uploadPdf(supabase, pdfFile, values.slug);
-    }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Upload failed' };
   }
+
+  // The PDF is uploaded directly from the browser to Supabase Storage (see
+  // PdfDropzone) rather than through this Server Action — a Server Action's
+  // payload goes through Vercel's request body, which has a hard ~4.5MB
+  // limit that a book PDF blows past in an instant, well below the app's
+  // own 50MB limit. The form just hands over the resulting storage path.
+  pdfPath = (formData.get('pdf_path') as string | null) || null;
 
   if (!coverUrl) {
     return { ok: false, error: 'A cover image is required.', fieldErrors: { cover_image_url: 'Please upload a cover image.' } };
@@ -195,13 +181,13 @@ export async function updateBook(
     if (coverFile && coverFile.size > 0) {
       coverUrl = await uploadCover(supabase, coverFile, values.slug);
     }
-    const pdfFile = formData.get('pdf_file') as File | null;
-    if (pdfFile && pdfFile.size > 0) {
-      pdfPath = await uploadPdf(supabase, pdfFile, values.slug);
-    }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Upload failed' };
   }
+
+  // Uploaded directly from the browser to Storage — see createBook for why.
+  const newPdfPath = formData.get('pdf_path') as string | null;
+  if (newPdfPath) pdfPath = newPdfPath;
 
   if (!coverUrl) {
     return { ok: false, error: 'A cover image is required.', fieldErrors: { cover_image_url: 'Please upload a cover image.' } };
