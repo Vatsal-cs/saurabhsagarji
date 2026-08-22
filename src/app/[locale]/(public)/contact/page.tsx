@@ -71,6 +71,9 @@ export default async function ContactPage({ params }: Props) {
               <StaggerItem>
                 <QrCard src="/donation-qr-hospital.jpeg" label={t('qrHospitalLabel')} />
               </StaggerItem>
+              <StaggerItem>
+                <QrCard src="/donation-qr-saurabhanchal.png" label={t('qrSaurabhanchalLabel')} />
+              </StaggerItem>
             </StaggerGroup>
           </div>
         </div>
