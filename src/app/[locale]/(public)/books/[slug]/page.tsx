@@ -41,9 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BookDetailPage({ params }: Props) {
   const { locale, slug } = await params;
-  const book = await getPublishedBookBySlug(slug);
-  const t = await getTranslations({ locale, namespace: 'BookDetail' });
-  const tBooks = await getTranslations({ locale, namespace: 'Books' });
+  const [book, t, tBooks] = await Promise.all([
+    getPublishedBookBySlug(slug),
+    getTranslations({ locale, namespace: 'BookDetail' }),
+    getTranslations({ locale, namespace: 'Books' }),
+  ]);
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
 
   if (!book) notFound();

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ["192.168.31.133"],
 
-  serverExternalPackages: ['sharp', 'pdfjs-dist'],
+  serverExternalPackages: ['sharp'],
 
   // `sharp` is used directly in server actions (resizeForUpload), not just
   // through next/image — Vercel's build-time file tracer doesn't reliably

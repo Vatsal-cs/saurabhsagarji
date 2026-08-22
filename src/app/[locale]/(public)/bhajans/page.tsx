@@ -11,22 +11,28 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function BhajansPage({ params }: Props) {
   const { locale } = await params;
-  const bhajans = await getPublishedBhajans();
-  const t = await getTranslations({ locale, namespace: 'ComingSoon' });
+  const [bhajans, t] = await Promise.all([
+    getPublishedBhajans(),
+    getTranslations({ locale, namespace: 'ComingSoon' }),
+  ]);
 
   return (
     <main className="relative min-h-full overflow-hidden bg-ivory">
       <SoberTexture />
       <div className="relative mx-auto w-full max-w-6xl px-6 sm:px-8">
         <div className="py-16 sm:py-20">
-          <Reveal className="mx-auto max-w-2xl text-center">
+          <Reveal className="mx-auto max-w-4xl text-center">
             <p className="font-serif text-base uppercase tracking-[0.1em] text-gold-600">
               {t('bhajans')}
             </p>
             <SplitHeadline
               as="h1"
-              text={locale === 'en' ? 'Bhajans' : 'भजन'}
-              className="mt-3 font-serif text-4xl leading-tight tracking-tight text-maroon-800 sm:text-5xl"
+              text={
+                locale === 'en'
+                  ? 'A Shower of Devotional Nectar: Sweet Bhajans'
+                  : 'भक्ति रस की अमृत वर्षा: मधुर भजन'
+              }
+              className="mt-3 font-serif text-2xl leading-snug tracking-tight text-maroon-800 sm:text-3xl md:text-4xl"
             />
             <div className="mt-5 flex items-center justify-center gap-3" aria-hidden="true">
               <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold-500" />

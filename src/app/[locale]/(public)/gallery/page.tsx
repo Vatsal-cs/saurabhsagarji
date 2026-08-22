@@ -11,8 +11,10 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function GalleryPage({ params }: Props) {
   const { locale } = await params;
-  const albums = await getPublishedAlbums();
-  const t = await getTranslations({ locale, namespace: 'ComingSoon' });
+  const [albums, t] = await Promise.all([
+    getPublishedAlbums(),
+    getTranslations({ locale, namespace: 'ComingSoon' }),
+  ]);
 
   const albumsWithPhotos = await Promise.all(
     albums.map(async (album) => ({

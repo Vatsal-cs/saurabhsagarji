@@ -11,9 +11,11 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function BooksPage({ params }: Props) {
   const { locale } = await params;
-  const books = await getPublishedBooks();
-  const t = await getTranslations({ locale, namespace: 'Books' });
-  const tDetail = await getTranslations({ locale, namespace: 'BookDetail' });
+  const [books, t, tDetail] = await Promise.all([
+    getPublishedBooks(),
+    getTranslations({ locale, namespace: 'Books' }),
+    getTranslations({ locale, namespace: 'BookDetail' }),
+  ]);
 
   return (
     <main className="relative min-h-full overflow-hidden bg-ivory">

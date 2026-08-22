@@ -219,7 +219,6 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
                             alt={title}
                             fill
                             draggable={false}
-                            priority
                             sizes="208px"
                             className="object-contain"
                           />
