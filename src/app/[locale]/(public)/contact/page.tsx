@@ -64,16 +64,22 @@ export default async function ContactPage({ params }: Props) {
               <p className="mt-2 font-serif-en text-sm text-maroon-800/70">{t('donationsBody')}</p>
             </Reveal>
 
-            <StaggerGroup className="mx-auto mt-10 grid max-w-4xl gap-8 sm:grid-cols-2" stagger={0.12}>
+            {/* Two independent columns, not a shared grid row — Jinalaya's card is
+                taller than Hospital's, so sharing one grid row would leave Hospital's
+                column dead-space-padded up to Jinalaya's height before Saurabhanchal
+                could start underneath it. */}
+            <StaggerGroup className="mx-auto mt-10 grid max-w-4xl items-start gap-8 sm:grid-cols-2" stagger={0.12}>
               <StaggerItem>
                 <QrCard src="/donation-qr-jinalaya.jpeg" label={t('qrJinalayaLabel')} />
               </StaggerItem>
-              <StaggerItem>
-                <QrCard src="/donation-qr-hospital.jpeg" label={t('qrHospitalLabel')} />
-              </StaggerItem>
-              <StaggerItem className="sm:col-start-2">
-                <QrCard src="/donation-qr-saurabhanchal.png" label={t('qrSaurabhanchalLabel')} />
-              </StaggerItem>
+              <div className="flex flex-col gap-8">
+                <StaggerItem>
+                  <QrCard src="/donation-qr-hospital.jpeg" label={t('qrHospitalLabel')} />
+                </StaggerItem>
+                <StaggerItem>
+                  <QrCard src="/donation-qr-saurabhanchal.png" label={t('qrSaurabhanchalLabel')} />
+                </StaggerItem>
+              </div>
             </StaggerGroup>
           </div>
         </div>
