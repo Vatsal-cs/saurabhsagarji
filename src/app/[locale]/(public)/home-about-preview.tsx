@@ -127,7 +127,7 @@ export function HomeAboutPreview({
               {intro && (
                 <p
                   className={cn(
-                    'relative mt-4 max-w-xl font-serif text-sm leading-relaxed text-neutral-800 transition-all duration-500 ease-out first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:text-4xl first-letter:leading-[0.8] first-letter:text-maroon-800 sm:mt-6 sm:text-xl sm:first-letter:text-6xl',
+                    'relative mt-4 max-w-xl font-serif text-sm leading-relaxed text-neutral-800 transition-all duration-500 ease-out sm:mt-6 sm:text-xl',
                     revealed ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
                   )}
                   style={{ transitionDelay: '450ms' }}

@@ -57,7 +57,7 @@ export default async function AboutSectionPage({ params }: Props) {
   // set from the admin form's Heading toggle. Everything else is body text.
   // Lines are trimmed and blank ones dropped so a stray blank line left over
   // from pasted text (very common — most editors insert one between
-  // paragraphs) doesn't render as an empty paragraph and steal the drop cap.
+  // paragraphs) doesn't render as an empty paragraph.
   const bodyBlocks = (body ? body.split('\n').map((l) => l.trim()).filter(Boolean) : []).map((line) => {
     return line.startsWith('## ')
       ? { type: 'heading' as const, text: line.slice(3).trim() }
@@ -155,14 +155,7 @@ export default async function AboutSectionPage({ params }: Props) {
                       </Reveal>
                     ) : (
                       <Reveal>
-                        <p
-                          className={
-                            'mb-6 ' +
-                            (i === firstTextIndex
-                              ? 'first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:leading-[0.8] first-letter:text-maroon-800 sm:first-letter:text-7xl'
-                              : '')
-                          }
-                        >
+                        <p className="mb-6">
                           {renderBoldText(block.text)}
                         </p>
                       </Reveal>
