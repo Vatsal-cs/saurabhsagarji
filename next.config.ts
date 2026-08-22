@@ -11,6 +11,25 @@ const nextConfig: NextConfig = {
 
   serverExternalPackages: ['sharp', 'pdfjs-dist'],
 
+  // `sharp` is used directly in server actions (resizeForUpload), not just
+  // through next/image — Vercel's build-time file tracer doesn't reliably
+  // follow sharp's dynamically-loaded native binary into the deployed
+  // function bundle unless told to explicitly, which is what causes the
+  // "libvips-cpp.so: cannot open shared object file" runtime error even
+  // when the binary installed correctly during the build.
+  outputFileTracingIncludes: {
+    '/**/*': [
+      './node_modules/sharp/**/*',
+      './node_modules/@img/**/*',
+      // pnpm stores the actual platform binaries here, only symlinking the
+      // current build platform's copy into the flat paths above — including
+      // the nested store directly is a safety net in case the symlinked
+      // path alone isn't enough for the tracer to follow.
+      './node_modules/.pnpm/@img+sharp-linux-x64@*/**/*',
+      './node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/**/*',
+    ],
+  },
+
   experimental: {
     proxyClientMaxBodySize: '300mb',
     serverActions: {
