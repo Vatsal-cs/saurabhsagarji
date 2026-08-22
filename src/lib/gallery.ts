@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
@@ -47,21 +48,28 @@ function toPublicPhoto(row: Photo): PublicPhoto {
   };
 }
 
-/** All published albums, for the public gallery tabs. Cookie-aware (RSC). */
-export async function getPublishedAlbums(): Promise<PublicAlbum[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('gallery_albums')
-    .select('*')
-    .eq('is_published', true)
-    .order('title_hi', { ascending: true });
+/**
+ * All published albums, for the public gallery tabs.
+ * Cached and cookie-free (see getPublishedBhajans in bhajans.ts for why).
+ */
+export const getPublishedAlbums = unstable_cache(
+  async (): Promise<PublicAlbum[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('gallery_albums')
+      .select('*')
+      .eq('is_published', true)
+      .order('title_hi', { ascending: true });
 
-  if (error) {
-    console.error('[getPublishedAlbums]', error);
-    return [];
-  }
-  return (data ?? []).map(toPublicAlbum);
-}
+    if (error) {
+      console.error('[getPublishedAlbums]', error);
+      return [];
+    }
+    return (data ?? []).map(toPublicAlbum);
+  },
+  ['getPublishedAlbums'],
+  { revalidate: 60 }
+);
 
 /** Build-time / static-context variant — no cookies, safe in generateStaticParams. */
 export async function getPublishedAlbumsStatic(): Promise<PublicAlbum[]> {
@@ -79,21 +87,28 @@ export async function getPublishedAlbumsStatic(): Promise<PublicAlbum[]> {
   return (data ?? []).map(toPublicAlbum);
 }
 
-/** All photos in a published album, ordered for display. */
-export async function getPhotosForAlbum(albumId: string): Promise<PublicPhoto[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('gallery_photos')
-    .select('*')
-    .eq('album_id', albumId)
-    .order('display_order', { ascending: true });
+/**
+ * All photos in a published album, ordered for display.
+ * Cached and cookie-free (see getPublishedBhajans in bhajans.ts for why).
+ */
+export const getPhotosForAlbum = unstable_cache(
+  async (albumId: string): Promise<PublicPhoto[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('gallery_photos')
+      .select('*')
+      .eq('album_id', albumId)
+      .order('display_order', { ascending: true });
 
-  if (error) {
-    console.error('[getPhotosForAlbum]', error);
-    return [];
-  }
-  return (data ?? []).map(toPublicPhoto);
-}
+    if (error) {
+      console.error('[getPhotosForAlbum]', error);
+      return [];
+    }
+    return (data ?? []).map(toPublicPhoto);
+  },
+  ['getPhotosForAlbum'],
+  { revalidate: 60 }
+);
 
 /**
  * A cross-album sampler for the homepage marquee — pulls a handful of photos

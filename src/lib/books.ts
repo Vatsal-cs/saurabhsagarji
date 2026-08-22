@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { createStaticClient } from '@/lib/supabase/static';
@@ -53,46 +54,58 @@ function toPublicBook(row: Book): PublicBook {
 /**
  * Fetch all published books, most recently published first.
  * RLS ensures only published books come back for anonymous requests.
+ *
+ * Cached and cookie-free (see getPublishedBhajans in bhajans.ts for why) —
+ * this doesn't depend on the visitor, so there's no reason it was forcing
+ * every visit to /books into a fresh dynamic render.
  */
-export async function getPublishedBooks(): Promise<PublicBook[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('books')
-    .select('*')
-    .eq('is_published', true)
-    .order('display_order', { ascending: true });
+export const getPublishedBooks = unstable_cache(
+  async (): Promise<PublicBook[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('is_published', true)
+      .order('display_order', { ascending: true });
 
-  if (error) {
-    // In prod we'd log to Sentry / an observability tool.
-    // For now, surface it in server logs and return an empty list
-    // so the page still renders (soft failure).
-    console.error('[getPublishedBooks]', error);
-    return [];
-  }
+    if (error) {
+      // In prod we'd log to Sentry / an observability tool.
+      // For now, surface it in server logs and return an empty list
+      // so the page still renders (soft failure).
+      console.error('[getPublishedBooks]', error);
+      return [];
+    }
 
-  return (data ?? []).map(toPublicBook);
-}
+    return (data ?? []).map(toPublicBook);
+  },
+  ['getPublishedBooks'],
+  { revalidate: 60 }
+);
 
 /**
  * Books an admin has pinned for the homepage drag deck — a curated subset of
  * getPublishedBooks, independent of the full /books catalogue.
  */
-export async function getHomePinnedBooks(): Promise<PublicBook[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('books')
-    .select('*')
-    .eq('is_published', true)
-    .eq('is_home_pinned', true)
-    .order('display_order', { ascending: true });
+export const getHomePinnedBooks = unstable_cache(
+  async (): Promise<PublicBook[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_home_pinned', true)
+      .order('display_order', { ascending: true });
 
-  if (error) {
-    console.error('[getHomePinnedBooks]', error);
-    return [];
-  }
+    if (error) {
+      console.error('[getHomePinnedBooks]', error);
+      return [];
+    }
 
-  return (data ?? []).map(toPublicBook);
-}
+    return (data ?? []).map(toPublicBook);
+  },
+  ['getHomePinnedBooks'],
+  { revalidate: 60 }
+);
 
 /**
  * Build-time variant of getPublishedBooks that doesn't touch cookies.
@@ -119,24 +132,26 @@ export async function getPublishedBooksStatic(): Promise<PublicBook[]> {
  * Fetch a single published book by slug.
  * Returns null if not found (used for the detail page 404).
  */
-export async function getPublishedBookBySlug(
-  slug: string
-): Promise<PublicBook | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('books')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .maybeSingle(); // maybeSingle: 0 or 1 rows, never errors on 0 (unlike single)
+export const getPublishedBookBySlug = unstable_cache(
+  async (slug: string): Promise<PublicBook | null> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .maybeSingle(); // maybeSingle: 0 or 1 rows, never errors on 0 (unlike single)
 
-  if (error) {
-    console.error('[getPublishedBookBySlug]', error);
-    return null;
-  }
+    if (error) {
+      console.error('[getPublishedBookBySlug]', error);
+      return null;
+    }
 
-  return data ? toPublicBook(data) : null;
-}
+    return data ? toPublicBook(data) : null;
+  },
+  ['getPublishedBookBySlug'],
+  { revalidate: 60 }
+);
 
 /**
  * Fetch ALL books, published or draft, for admin views.

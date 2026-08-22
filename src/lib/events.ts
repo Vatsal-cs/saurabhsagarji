@@ -1,4 +1,6 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
 
 type Event = Database['public']['Tables']['events']['Row'];
@@ -40,48 +42,59 @@ function toPublic(row: Event): PublicEvent {
 /**
  * The single soonest upcoming published event (start OR end date in the
  * future), or null if there isn't one. Used for the featured card.
+ *
+ * Cached and cookie-free (see getPublishedBhajans for why) — a 60s window on
+ * an event's upcoming/past boundary is invisible in practice.
  */
-export async function getUpcomingEvent(): Promise<PublicEvent | null> {
-  const supabase = await createClient();
-  const nowIso = new Date().toISOString();
+export const getUpcomingEvent = unstable_cache(
+  async (): Promise<PublicEvent | null> => {
+    const supabase = createStaticClient();
+    const nowIso = new Date().toISOString();
 
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('is_published', true)
-    .or(`end_datetime.gte.${nowIso},and(end_datetime.is.null,start_datetime.gte.${nowIso})`)
-    .order('start_datetime', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('is_published', true)
+      .or(`end_datetime.gte.${nowIso},and(end_datetime.is.null,start_datetime.gte.${nowIso})`)
+      .order('start_datetime', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-  if (error) {
-    console.error('[getUpcomingEvent]', error);
-    return null;
-  }
-  return data ? toPublic(data) : null;
-}
+    if (error) {
+      console.error('[getUpcomingEvent]', error);
+      return null;
+    }
+    return data ? toPublic(data) : null;
+  },
+  ['getUpcomingEvent'],
+  { revalidate: 60 }
+);
 
 /**
  * Published events that have already happened, newest first.
  * Excludes whatever getUpcomingEvent() would return.
  */
-export async function getPastEvents(): Promise<PublicEvent[]> {
-  const supabase = await createClient();
-  const nowIso = new Date().toISOString();
+export const getPastEvents = unstable_cache(
+  async (): Promise<PublicEvent[]> => {
+    const supabase = createStaticClient();
+    const nowIso = new Date().toISOString();
 
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('is_published', true)
-    .or(`end_datetime.lt.${nowIso},and(end_datetime.is.null,start_datetime.lt.${nowIso})`)
-    .order('start_datetime', { ascending: false });
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('is_published', true)
+      .or(`end_datetime.lt.${nowIso},and(end_datetime.is.null,start_datetime.lt.${nowIso})`)
+      .order('start_datetime', { ascending: false });
 
-  if (error) {
-    console.error('[getPastEvents]', error);
-    return [];
-  }
-  return (data ?? []).map(toPublic);
-}
+    if (error) {
+      console.error('[getPastEvents]', error);
+      return [];
+    }
+    return (data ?? []).map(toPublic);
+  },
+  ['getPastEvents'],
+  { revalidate: 60 }
+);
 
 export async function getAllEventsForAdmin() {
   const supabase = await createClient();

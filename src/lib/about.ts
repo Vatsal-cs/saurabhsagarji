@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
@@ -40,21 +41,28 @@ function toPublic(row: Section): PublicAboutSection {
   };
 }
 
-/** All published sections, ordered — used for the nav dropdown. */
-export async function getPublishedAboutSections(): Promise<PublicAboutSection[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('about_sections')
-    .select('*')
-    .eq('is_published', true)
-    .order('display_order', { ascending: true });
+/**
+ * All published sections, ordered — used for the nav dropdown.
+ * Cached and cookie-free (see getPublishedBhajans in bhajans.ts for why).
+ */
+export const getPublishedAboutSections = unstable_cache(
+  async (): Promise<PublicAboutSection[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('about_sections')
+      .select('*')
+      .eq('is_published', true)
+      .order('display_order', { ascending: true });
 
-  if (error) {
-    console.error('[getPublishedAboutSections]', error);
-    return [];
-  }
-  return (data ?? []).map(toPublic);
-}
+    if (error) {
+      console.error('[getPublishedAboutSections]', error);
+      return [];
+    }
+    return (data ?? []).map(toPublic);
+  },
+  ['getPublishedAboutSections'],
+  { revalidate: 60 }
+);
 
 /** Build-time variant, no cookies — safe in generateStaticParams. */
 export async function getPublishedAboutSectionsStatic(): Promise<PublicAboutSection[]> {
@@ -72,43 +80,52 @@ export async function getPublishedAboutSectionsStatic(): Promise<PublicAboutSect
   return (data ?? []).map(toPublic);
 }
 
-/** Videos attached to a section, in display order — shown as cards at the
- * bottom of the biography page. */
-export async function getAboutSectionVideos(sectionId: string): Promise<PublicAboutVideo[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('about_section_videos')
-    .select('id, youtube_video_id, display_order')
-    .eq('about_section_id', sectionId)
-    .order('display_order', { ascending: true });
+/**
+ * Videos attached to a section, in display order — shown as cards at the
+ * bottom of the biography page.
+ * Cached and cookie-free (see getPublishedBhajans in bhajans.ts for why).
+ */
+export const getAboutSectionVideos = unstable_cache(
+  async (sectionId: string): Promise<PublicAboutVideo[]> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('about_section_videos')
+      .select('id, youtube_video_id, display_order')
+      .eq('about_section_id', sectionId)
+      .order('display_order', { ascending: true });
 
-  if (error) {
-    console.error('[getAboutSectionVideos]', error);
-    return [];
-  }
-  return data ?? [];
-}
+    if (error) {
+      console.error('[getAboutSectionVideos]', error);
+      return [];
+    }
+    return data ?? [];
+  },
+  ['getAboutSectionVideos'],
+  { revalidate: 60 }
+);
 
-export async function getPublishedAboutSectionBySlug(
-  slug: string
-): Promise<(PublicAboutSection & { videos: PublicAboutVideo[] }) | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('about_sections')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .maybeSingle();
+export const getPublishedAboutSectionBySlug = unstable_cache(
+  async (slug: string): Promise<(PublicAboutSection & { videos: PublicAboutVideo[] }) | null> => {
+    const supabase = createStaticClient();
+    const { data, error } = await supabase
+      .from('about_sections')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .maybeSingle();
 
-  if (error) {
-    console.error('[getPublishedAboutSectionBySlug]', error);
-    return null;
-  }
-  if (!data) return null;
+    if (error) {
+      console.error('[getPublishedAboutSectionBySlug]', error);
+      return null;
+    }
+    if (!data) return null;
 
-  const videos = await getAboutSectionVideos(data.id);
-  return { ...toPublic(data), videos };
-}
+    const videos = await getAboutSectionVideos(data.id);
+    return { ...toPublic(data), videos };
+  },
+  ['getPublishedAboutSectionBySlug'],
+  { revalidate: 60 }
+);
 
 /** Admin: every section regardless of publish state, in display order. */
 export async function getAllAboutSectionsForAdmin() {

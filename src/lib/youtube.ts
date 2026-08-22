@@ -71,10 +71,10 @@ type PlaylistItemsListResponse = {
   }>;
 };
 
-type SearchListResponse = {
+type VideosListResponse = {
   items?: Array<{
-    id?: { videoId?: string };
-    snippet?: { title: string; thumbnails?: YoutubeThumbnails };
+    id: string;
+    snippet?: { title: string; liveBroadcastContent?: string; thumbnails?: YoutubeThumbnails };
   }>;
 };
 
@@ -155,10 +155,15 @@ export type LiveVideo = {
 };
 
 /**
- * Currently-live broadcast on the channel, if any. Uses search.list (100
- * quota units) since that's the only endpoint that can filter by live
- * status, so it's cached longer than a normal request but shorter than the
- * uploads list, to keep "Live Now" reasonably fresh without burning quota.
+ * Currently-live broadcast on the channel, if any.
+ *
+ * Deliberately doesn't use search.list's `eventType=live` filter — that
+ * endpoint is well known to lag or simply miss channels that are actively
+ * live (confirmed directly against this channel: it returned zero results
+ * 41 minutes into a live stream with viewers watching). Instead this checks
+ * the same handful of most-recent uploads already fetched elsewhere, via
+ * videos.list's `liveBroadcastContent` field, which YouTube keeps accurate
+ * in real time. Bonus: videos.list is 1 quota unit vs. search.list's 100.
  * Returns null (nothing rendered) whenever nothing is live or the lookup
  * fails — never a false "live" state.
  */
@@ -168,17 +173,26 @@ export async function getLiveChannelVideo(): Promise<LiveVideo | null> {
   if (!channel) return null;
 
   try {
-    const url = `${YOUTUBE_API_BASE}/search?part=snippet&type=video&eventType=live&channelId=${channel.channelId}&key=${process.env.YOUTUBE_API_KEY}`;
-    const res = await fetch(url, { next: { revalidate: 300 } });
-    if (!res.ok) return null;
+    const playlistUrl = `${YOUTUBE_API_BASE}/playlistItems?part=snippet&maxResults=5&playlistId=${channel.uploadsPlaylistId}&key=${process.env.YOUTUBE_API_KEY}`;
+    const playlistRes = await fetch(playlistUrl, { next: { revalidate: 120 } });
+    if (!playlistRes.ok) return null;
 
-    const data = (await res.json()) as SearchListResponse;
-    const item = data.items?.[0];
-    const videoId = item?.id?.videoId;
-    const thumbnailUrl = item?.snippet?.thumbnails?.medium?.url ?? item?.snippet?.thumbnails?.default?.url;
-    if (!videoId || !thumbnailUrl || !item?.snippet) return null;
+    const playlistData = (await playlistRes.json()) as PlaylistItemsListResponse;
+    const ids = (playlistData.items ?? [])
+      .map((item) => item.snippet?.resourceId?.videoId)
+      .filter((id): id is string => Boolean(id));
+    if (ids.length === 0) return null;
 
-    return { id: videoId, title: item.snippet.title, thumbnailUrl };
+    const videosUrl = `${YOUTUBE_API_BASE}/videos?part=snippet&id=${ids.join(',')}&key=${process.env.YOUTUBE_API_KEY}`;
+    const videosRes = await fetch(videosUrl, { next: { revalidate: 120 } });
+    if (!videosRes.ok) return null;
+
+    const videosData = (await videosRes.json()) as VideosListResponse;
+    const liveItem = videosData.items?.find((item) => item.snippet?.liveBroadcastContent === 'live');
+    const thumbnailUrl = liveItem?.snippet?.thumbnails?.medium?.url ?? liveItem?.snippet?.thumbnails?.default?.url;
+    if (!liveItem || !thumbnailUrl || !liveItem.snippet?.title) return null;
+
+    return { id: liveItem.id, title: liveItem.snippet.title, thumbnailUrl };
   } catch (error) {
     console.error('[getLiveChannelVideo]', error);
     return null;
