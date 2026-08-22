@@ -74,7 +74,12 @@ type PlaylistItemsListResponse = {
 type VideosListResponse = {
   items?: Array<{
     id: string;
-    snippet?: { title: string; liveBroadcastContent?: string; thumbnails?: YoutubeThumbnails };
+    snippet?: {
+      title: string;
+      publishedAt?: string;
+      liveBroadcastContent?: string;
+      thumbnails?: YoutubeThumbnails;
+    };
   }>;
 };
 
@@ -197,4 +202,33 @@ export async function getLiveChannelVideo(): Promise<LiveVideo | null> {
     console.error('[getLiveChannelVideo]', error);
     return null;
   }
+}
+
+/**
+ * YouTube's actual publish date for a batch of video IDs, keyed by id.
+ * Used to sort a curated list (e.g. bhajans) by when the video really went
+ * up on YouTube, independent of whatever order it was added to the site in.
+ * 1 quota unit per 50 IDs. Missing/failed lookups are simply absent from the
+ * result — callers should fall back to their own ordering for those.
+ */
+export async function getVideoPublishDates(videoIds: string[]): Promise<Record<string, string>> {
+  if (!process.env.YOUTUBE_API_KEY || videoIds.length === 0) return {};
+
+  const result: Record<string, string> = {};
+  try {
+    for (let i = 0; i < videoIds.length; i += 50) {
+      const batch = videoIds.slice(i, i + 50);
+      const url = `${YOUTUBE_API_BASE}/videos?part=snippet&id=${batch.join(',')}&key=${process.env.YOUTUBE_API_KEY}`;
+      const res = await fetch(url, { next: { revalidate: 3600 } });
+      if (!res.ok) continue;
+
+      const data = (await res.json()) as VideosListResponse;
+      for (const item of data.items ?? []) {
+        if (item.snippet?.publishedAt) result[item.id] = item.snippet.publishedAt;
+      }
+    }
+  } catch (error) {
+    console.error('[getVideoPublishDates]', error);
+  }
+  return result;
 }
