@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isSiteLaunched } from '@/lib/site-content';
+import { LaunchButton } from './launch-button';
 
 export const metadata = {
   title: 'Dashboard',
@@ -27,6 +29,8 @@ export default async function DashboardPage() {
     redirect('/prabhat-gate/login');
   }
 
+  const launched = await isSiteLaunched();
+
   return (
     <div className="min-h-screen bg-neutral-50 p-8">
       <div className="mx-auto max-w-4xl">
@@ -45,6 +49,20 @@ export default async function DashboardPage() {
               Sign out
             </button>
           </form>
+        </div>
+
+        <div className="mb-6 rounded-lg border border-neutral-200 bg-white p-6">
+          <h2 className="font-serif text-lg text-neutral-900">
+            {launched ? 'Site status' : 'Ready to launch?'}
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            {launched
+              ? 'Visitors see the real site.'
+              : 'Everyone currently sees a "Coming Soon" page. Pressing Launch makes the real site public for everyone — this can’t be undone.'}
+          </p>
+          <div className="mt-4">
+            <LaunchButton launched={launched} />
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

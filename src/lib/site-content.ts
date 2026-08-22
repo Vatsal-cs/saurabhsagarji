@@ -25,7 +25,8 @@ export type SiteContentKey =
   | 'about_philosophy'
   | 'site_name'
   | 'site_tagline'
-  | 'footer_copyright';
+  | 'footer_copyright'
+  | 'site_launched';
 
 /**
  * Fetch a single site_content value in the requested language.
@@ -53,7 +54,7 @@ export const getSiteContent = unstable_cache(
     return primary ?? fallback ?? key;
   },
   ['getSiteContent'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['site-content'] }
 );
 
 /**
@@ -83,5 +84,16 @@ export const getSiteContentBatch = unstable_cache(
     return result;
   },
   ['getSiteContentBatch'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['site-content'] }
 ) as <K extends SiteContentKey>(keys: readonly K[], lang?: Language) => Promise<Record<K, string>>;
+
+/**
+ * Whether the "Launch Site" button has been pressed in the admin panel yet.
+ * Unset (no row in site_content) reads back as the literal key string, not
+ * "true" — so a fresh database defaults to "not launched" with no seed row
+ * needed. See coming-soon-splash.tsx and lib/actions/launch.ts.
+ */
+export async function isSiteLaunched(): Promise<boolean> {
+  const value = await getSiteContent('site_launched', 'en');
+  return value === 'true';
+}

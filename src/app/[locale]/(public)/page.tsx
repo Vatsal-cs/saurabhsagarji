@@ -17,6 +17,7 @@ import { HomeEventBanner } from './home-event-banner';
 import { HomeBooksPreview } from './home-books-preview';
 import { HomeMediaPreview } from './home-media-preview';
 import { HomeGalleryPreview } from './home-gallery-preview';
+import { CurtainReveal } from './curtain-reveal';
 
 const HOME_KEYS = ['home_hero_headline', 'site_name'] as const;
 
@@ -31,7 +32,10 @@ const CHATURMAS_HISTORY = {
   en: ' Banda (1995) • Baraut (1996) • Panipat (1997) • Shivpuri (1998) • Rohtak (1999) • Ghaziabad (2000) • Ambala (2001) • Lucknow (2002) • Kailash Nagar (2003) • Yamuna Vihar (2004) • Bahubali Enclave (2005) • Rewari (2006) • Hisar (2007) • Bahubali Enclave (2008) • Sardhana (2009) • Gwalior (2010) • Lucknow (2011) • Shri Sammed Shikhar Ji (2012) • Bhagalpur (2013) • Barabanki (2014) • Meerut (2015) • Rohini Sector 11 (2016) • Krishna Nagar (2017) • Shri Manshapurn Mahavir Kshetra (2018) • Dehradun (2019) • Pushpgiri (2020) • Pushpgiri (2021) • Dronagiri (2022) • Jaipur (2023) • Surajmal Vihar (2024) • Dehradun (2025) • Meerut (2026) || ',
 } as const;
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -43,8 +47,9 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function HomePage({ params }: Props) {
+export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const { justLaunched } = await searchParams;
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
 
   const [content, aboutSections, upcomingEvent, books, youtubeVideos, bhajans, galleryPhotos] =
@@ -81,6 +86,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <main className="min-h-full bg-ivory text-ink">
+      {justLaunched === '1' && <CurtainReveal />}
       {/* Hero + marquee + quote share one continuous dark canvas — the grid
           and gold particles span the whole thing instead of stopping at the
           hero's edge. */}

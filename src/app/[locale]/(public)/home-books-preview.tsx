@@ -133,7 +133,7 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
                 type="button"
                 onClick={() => step(-1)}
                 aria-label={lang === 'en' ? 'Previous book' : 'पिछली पुस्तक'}
-                className="absolute left-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-x-0.5 hover:-translate-y-1/2 hover:border-gold-500 hover:bg-ivory sm:left-4 sm:h-12 sm:w-12"
+                className="absolute left-2 top-1/2 z-[35] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-x-0.5 hover:-translate-y-1/2 hover:border-gold-500 hover:bg-ivory sm:left-4 sm:h-12 sm:w-12"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
@@ -145,7 +145,7 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
                 type="button"
                 onClick={() => step(1)}
                 aria-label={lang === 'en' ? 'Next book' : 'अगली पुस्तक'}
-                className="absolute right-2 top-1/2 z-[110] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-y-1/2 hover:translate-x-0.5 hover:border-gold-500 hover:bg-ivory sm:right-4 sm:h-12 sm:w-12"
+                className="absolute right-2 top-1/2 z-[35] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold-500/50 bg-ivory/90 text-maroon-800 shadow-md backdrop-blur transition-all hover:-translate-y-1/2 hover:translate-x-0.5 hover:border-gold-500 hover:bg-ivory sm:right-4 sm:h-12 sm:w-12"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
@@ -189,7 +189,7 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
                 <div
                   key={book.id}
                   className="absolute left-1/2 top-1/2 w-40 -translate-x-1/2 -translate-y-1/2 sm:w-52"
-                  style={{ zIndex: 100 - Math.round(abs * 10) }}
+                  style={{ zIndex: 30 - Math.round(abs * 10) }}
                 >
                   <motion.div
                     animate={{
