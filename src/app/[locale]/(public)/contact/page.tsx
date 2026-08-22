@@ -7,7 +7,7 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
 export const metadata = { title: 'Contact' };
 
 const PHONE_NUMBER = '9810962288';
-const PHONE_NAME = 'श्री आशु जैन';
+const PHONE_NAME = { hi: 'श्रीमान आशु जैन', en: 'Sh. Ashu Jain' };
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -51,12 +51,14 @@ export default async function ContactPage({ params }: Props) {
                 <PhoneGlyph className="h-4 w-4" />
                 {PHONE_NUMBER}
               </a>
-              <p className="mt-3 font-serif text-sm text-gold-600">{PHONE_NAME}</p>
+              <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                {locale === 'en' ? PHONE_NAME.en : PHONE_NAME.hi}
+              </p>
             </div>
           </Reveal>
 
           {/* Donations */}
-          <div className="mt-16">
+          <div id="donations" className="mt-16 scroll-mt-24">
             <Reveal className="mx-auto max-w-xl text-center">
               <h2 className="font-serif text-2xl text-maroon-800 sm:text-3xl">
                 {t('donationsHeading')}

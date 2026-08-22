@@ -10,7 +10,9 @@
     "contact": "Contact"
   },
   "Footer": {
-    "tagline": "Truth • Non-violence • Non-attachment"
+    "tagline": "Truth • Non-violence • Non-attachment",
+    "donate": "Donate",
+    "designedBy": "Designed & Developed by"
   },
   "Home": {
     "ctaBooks": "Publications",
