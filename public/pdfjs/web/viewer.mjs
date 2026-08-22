@@ -14446,6 +14446,15 @@ initCom(PDFViewerApplication);
 }
 {
   const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io"];
+  // This app's book PDFs are served from a public Supabase Storage bucket
+  // on a different origin than the site itself (done deliberately — see
+  // getPublicPdfUrl in src/lib/books.ts — proxying through this site's own
+  // origin was the previous approach and was undone for egress-cost
+  // reasons). Allow-listing that one specific origin here, rather than
+  // disabling this check outright, keeps the actual security property this
+  // check exists for: this viewer still can't be used as an open proxy to
+  // render an arbitrary attacker-supplied URL under this site's domain.
+  const ALLOWED_FILE_ORIGINS = ["https://yvmrivgwbyzjpynnmust.supabase.co"];
   var validateFileURL = function (file) {
     if (!file) {
       return;
@@ -14456,7 +14465,7 @@ initCom(PDFViewerApplication);
         return;
       }
       const fileOrigin = new URL(file, window.location.href).origin;
-      if (fileOrigin !== viewerOrigin) {
+      if (fileOrigin !== viewerOrigin && !ALLOWED_FILE_ORIGINS.includes(fileOrigin)) {
         throw new Error("file origin does not match viewer's");
       }
     } catch (ex) {

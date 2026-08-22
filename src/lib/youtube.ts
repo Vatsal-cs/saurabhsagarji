@@ -1,25 +1,44 @@
+const YOUTUBE_ID_RE = /^[a-zA-Z0-9_-]{11}$/;
+
 /**
  * Extracts an 11-character YouTube video ID from any common URL format:
- * - https://www.youtube.com/watch?v=VIDEOID
+ * - https://www.youtube.com/watch?v=VIDEOID (v= anywhere in the query
+ *   string, not just first — e.g. copied from inside a playlist)
  * - https://youtu.be/VIDEOID
  * - https://www.youtube.com/shorts/VIDEOID
- * - https://m.youtube.com/watch?v=VIDEOID
+ * - https://www.youtube.com/live/VIDEOID (livestreams/premieres)
  * - https://www.youtube.com/embed/VIDEOID
+ * - any youtube.com subdomain (www., m., music., or none)
  * Returns null if no valid ID could be extracted.
  */
 export function extractYouTubeId(url: string): string | null {
   const trimmed = url.trim();
+  if (!trimmed) return null;
 
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-  ];
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    const host = parsed.hostname.replace(/^(www|m|music)\./i, '').toLowerCase();
 
-  for (const pattern of patterns) {
-    const match = trimmed.match(pattern);
-    if (match) return match[1];
+    if (host === 'youtu.be') {
+      const id = parsed.pathname.slice(1).split('/')[0];
+      if (YOUTUBE_ID_RE.test(id)) return id;
+    }
+
+    if (host === 'youtube.com') {
+      const v = parsed.searchParams.get('v');
+      if (v && YOUTUBE_ID_RE.test(v)) return v;
+
+      const pathMatch = parsed.pathname.match(/\/(?:embed|shorts|live)\/([a-zA-Z0-9_-]{11})/);
+      if (pathMatch) return pathMatch[1];
+    }
+  } catch {
+    // Fall through — some pasted values (a bare ID, a malformed URL) won't
+    // parse as a URL at all, so fall back to a loose scan below instead of
+    // failing outright.
   }
 
-  return null;
+  const fallback = trimmed.match(/(?:[?&]v=|\/embed\/|\/shorts\/|\/live\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return fallback ? fallback[1] : null;
 }
 
 // --- Channel data (Teachings/Pravachan page's "live" preview) ------------
