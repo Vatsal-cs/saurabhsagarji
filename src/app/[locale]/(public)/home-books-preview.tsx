@@ -5,6 +5,7 @@ import { motion, type PanInfo } from 'framer-motion';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { WarmTexture } from '@/components/ui/warm-texture';
+import { SpinBorder } from '@/components/ui/spin-border';
 import { Reveal } from '@/components/ui/reveal';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import type { PublicBook } from '@/lib/books';
@@ -87,20 +88,14 @@ export function HomeBooksPreview({ books, lang }: { books: PublicBook[]; lang: L
               className="pointer-events-none absolute -inset-1.5 animate-pulse rounded-full bg-gold-400/50 blur-md"
               aria-hidden="true"
             />
-            <div
-              className="animate-spin-border relative rounded-full p-[2px] shadow-[0_10px_25px_-10px_rgba(88,10,45,0.6)]"
-              style={{
-                backgroundImage:
-                  'conic-gradient(from var(--border-angle), var(--color-gold-500), transparent 25%, var(--color-gold-400) 50%, transparent 75%, var(--color-gold-500))',
-              }}
-            >
+            <SpinBorder className="rounded-full shadow-[0_10px_25px_-10px_rgba(88,10,45,0.6)]">
               <Link
                 href="/books"
                 className="flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-2.5 font-serif-en text-sm font-medium text-ivory transition-all hover:-translate-y-0.5 hover:bg-maroon-900"
               >
                 {lang === 'en' ? 'View all publications' : 'सभी प्रकाशन देखें'} →
               </Link>
-            </div>
+            </SpinBorder>
           </div>
         </div>
 

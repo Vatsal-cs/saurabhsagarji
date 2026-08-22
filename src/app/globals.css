@@ -112,20 +112,20 @@ html {
   animation-iteration-count: infinite;
 }
 
-/* Animated conic-gradient border for the featured event card */
-@keyframes spin-border {
-  to { --border-angle: 360deg; }
+/* Spinning gold border ring — see SpinBorder component. Rotates the
+   gradient layer itself via transform (compositor-only, no repaint)
+   rather than animating a custom property that feeds a conic-gradient's
+   angle directly, which forces the browser to regenerate the gradient
+   every frame. That ran forever on some of the site's most prominent,
+   always-visible cards — real, continuous jank on weak GPUs. */
+@keyframes spin-border-rotate {
+  to { transform: rotate(360deg); }
 }
-@property --border-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-.animate-spin-border {
-  animation: spin-border 6s linear infinite;
+.animate-spin-border-rotate {
+  animation: spin-border-rotate 6s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-spin-border { animation: none; }
+  .animate-spin-border-rotate { animation: none; }
 }
 
 /* A glossy light band sweeping across a card's surface, like a reflection

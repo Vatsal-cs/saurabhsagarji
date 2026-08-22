@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { WarmTexture } from '@/components/ui/warm-texture';
 import { AmbientGlow } from '@/components/ui/ambient-glow';
+import { SpinBorder } from '@/components/ui/spin-border';
 import { MagneticButton } from '@/components/motion/magnetic-button';
 import { renderBoldText } from '@/lib/render-bold-text';
 import { useInView } from '@/hooks/use-in-view';
@@ -49,14 +50,11 @@ export function HomeAboutPreview({
         <div
           ref={ref}
           className={cn(
-            'animate-spin-border p-[2px] shadow-[0_45px_90px_-30px_rgba(88,10,45,0.65)] transition-all duration-700 ease-out',
+            'shadow-[0_45px_90px_-30px_rgba(88,10,45,0.65)] transition-all duration-700 ease-out',
             revealed ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-9 scale-95 opacity-0'
           )}
-          style={{
-            backgroundImage:
-              'conic-gradient(from var(--border-angle), var(--color-gold-500), transparent 25%, var(--color-gold-400) 50%, transparent 75%, var(--color-gold-500))',
-          }}
         >
+          <SpinBorder>
           <div className="relative flex overflow-hidden bg-gradient-to-br from-ivory via-ivory to-sand/60">
             <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
               <div className="animate-shimmer-sweep absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/70 to-transparent mix-blend-overlay" />
@@ -157,6 +155,7 @@ export function HomeAboutPreview({
               </div>
             </div>
           </div>
+          </SpinBorder>
         </div>
       </div>
     </section>

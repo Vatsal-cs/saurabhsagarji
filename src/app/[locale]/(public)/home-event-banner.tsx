@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Link } from '@/i18n/navigation';
 import { WarmTexture } from '@/components/ui/warm-texture';
+import { SpinBorder } from '@/components/ui/spin-border';
 import { TiltCard } from '@/components/motion/tilt-card';
 import { MagneticButton } from '@/components/motion/magnetic-button';
 import { formatEventDateRange } from '@/lib/event-dates';
@@ -42,12 +43,9 @@ export function HomeEventBanner({ event, lang }: { event: PublicEvent; lang: Lan
           style={{ transformStyle: 'preserve-3d' }}
         >
           <TiltCard max={4}>
-            <div
-              className="animate-spin-border rounded-[2rem] p-[2px] shadow-2xl"
-              style={{
-                backgroundImage:
-                  'conic-gradient(from var(--border-angle), var(--color-gold-500), transparent 30%, var(--color-gold-500) 60%, transparent 90%)',
-              }}
+            <SpinBorder
+              className="rounded-[2rem] shadow-2xl"
+              gradient="conic-gradient(from 0deg, var(--color-gold-500), transparent 30%, var(--color-gold-500) 60%, transparent 90%)"
             >
               <div className="flex flex-col items-center overflow-hidden rounded-[calc(2rem-2px)] bg-gradient-to-br from-ivory via-ivory to-sand/60 text-center sm:flex-row sm:text-left">
                 <div className="flex shrink-0 flex-col items-center justify-center gap-1 px-8 py-8 sm:py-10">
@@ -79,7 +77,7 @@ export function HomeEventBanner({ event, lang }: { event: PublicEvent; lang: Lan
                   </MagneticButton>
                 </div>
               </div>
-            </div>
+            </SpinBorder>
           </TiltCard>
         </motion.div>
       </div>

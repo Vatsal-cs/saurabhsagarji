@@ -4,6 +4,7 @@ import { getUpcomingEvent, getPastEvents } from '@/lib/events';
 import { formatEventDateRange } from '@/lib/event-dates';
 import { Reveal } from '@/components/ui/reveal';
 import { SoberTexture } from '@/components/ui/sober-texture';
+import { SpinBorder } from '@/components/ui/spin-border';
 import { SplitHeadline } from '@/components/motion/split-headline';
 import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
 import { TiltCard } from '@/components/motion/tilt-card';
@@ -50,12 +51,9 @@ export default async function EventsPage({ params }: Props) {
           {upcoming && (
             <Reveal delay={100} className="mx-auto mt-14 max-w-2xl">
               <TiltCard max={6}>
-                <div
-                  className="animate-spin-border rounded-3xl p-[2px] shadow-xl"
-                  style={{
-                    backgroundImage:
-                      'conic-gradient(from var(--border-angle), var(--color-gold-500), transparent 30%, var(--color-gold-500) 60%, transparent 90%)',
-                  }}
+                <SpinBorder
+                  className="rounded-3xl shadow-xl"
+                  gradient="conic-gradient(from 0deg, var(--color-gold-500), transparent 30%, var(--color-gold-500) 60%, transparent 90%)"
                 >
                   <div className="rounded-[calc(1.5rem-2px)] bg-gradient-to-b from-ivory to-sand/70 p-8 sm:p-10">
                     <span className="inline-flex items-center rounded-full bg-gold-500 px-3 py-1 text-xs font-medium uppercase tracking-wide text-maroon-900 shadow">
@@ -94,7 +92,7 @@ export default async function EventsPage({ params }: Props) {
                       </a>
                     )}
                   </div>
-                </div>
+                </SpinBorder>
               </TiltCard>
             </Reveal>
           )}

@@ -159,7 +159,7 @@ function MediaThumb({ item, lang, index }: { item: MediaItem; lang: Language; in
         transitionDuration: revealed ? '300ms' : '800ms',
       }}
     >
-      <MarqueeLights count={18} />
+      <MarqueeLights count={8} />
 
       <div className="relative">
         <div
