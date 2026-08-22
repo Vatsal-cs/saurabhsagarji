@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ["192.168.31.133"],
 
-  serverExternalPackages: ['@napi-rs/canvas', 'pdfjs-dist'],
+  serverExternalPackages: ['sharp', 'pdfjs-dist'],
 
   experimental: {
     proxyClientMaxBodySize: '300mb',
