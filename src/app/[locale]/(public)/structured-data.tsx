@@ -1,8 +1,7 @@
 import { YOUTUBE_CHANNEL_URL, INSTAGRAM_URL } from '@/lib/social-links';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://saurabhsagarji.in').replace(/\/$/, '');
-const PORTRAIT_URL =
-  'https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg';
+const PORTRAIT_URL = `${SITE_URL}/site-photo.jpg`;
 
 /**
  * JSON-LD on the homepage only — tells search engines this is the official

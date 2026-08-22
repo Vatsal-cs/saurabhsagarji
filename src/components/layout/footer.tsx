@@ -36,7 +36,7 @@ export async function Footer({ locale }: { locale: string }) {
           <div className="flex items-center gap-3" aria-hidden="true">
             <span className="h-px w-12 bg-gold-500/50" />
             <Image
-              src="https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg"
+              src="/site-photo.jpg"
               alt=""
               width={40}
               height={40}

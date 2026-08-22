@@ -49,7 +49,7 @@ export async function Header({ locale }: { locale: string }) {
         <HeaderShell>
           <Link href="/" className="group flex min-w-0 items-center gap-2">
             <Image
-              src="https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg"
+              src="/site-photo.jpg"
               alt=""
               width={24}
               height={24}

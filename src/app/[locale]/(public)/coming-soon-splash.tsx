@@ -16,7 +16,7 @@ export async function ComingSoonSplash({ lang }: { lang: Language }) {
       <div className="relative flex flex-col items-center">
         <Reveal className="flex flex-col items-center gap-6">
           <Image
-            src="https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg"
+            src="/site-photo.jpg"
             alt=""
             width={96}
             height={96}

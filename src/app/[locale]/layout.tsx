@@ -14,8 +14,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
   const c = await getSiteContentBatch(['site_name', 'site_tagline'], lang);
-  const shareImage =
-    'https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg';
+  // Relative — resolved against metadataBase below into a full URL.
+  const shareImage = '/site-photo.jpg';
   return {
     title: {
       default: `${c.site_name} — ${c.site_tagline}`,
