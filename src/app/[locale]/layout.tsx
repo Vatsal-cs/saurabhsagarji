@@ -14,19 +14,32 @@ export async function generateMetadata({
   const { locale } = await params;
   const lang = (locale === 'en' ? 'en' : 'hi') as Language;
   const c = await getSiteContentBatch(['site_name', 'site_tagline'], lang);
+  const shareImage =
+    'https://yvmrivgwbyzjpynnmust.supabase.co/storage/v1/object/public/about-photos/saurabh-sagar-ji-photo1-1784718042352.jpg';
   return {
     title: {
       default: `${c.site_name} — ${c.site_tagline}`,
       template: `%s — ${c.site_name}`,
     },
     description: c.site_tagline,
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-    ),
+    // Falls back to the real domain, not localhost — this value resolves
+    // every relative Open Graph/canonical URL the site emits, so a wrong
+    // fallback here would silently break link previews and search results
+    // in production if the env var were ever missing on Vercel.
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://saurabhsagarji.in'),
+    robots: { index: true, follow: true },
     openGraph: {
       title: `${c.site_name} — ${c.site_tagline}`,
       description: c.site_tagline,
       type: 'website',
+      locale: lang === 'en' ? 'en_US' : 'hi_IN',
+      images: [{ url: shareImage, width: 1200, height: 1200 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${c.site_name} — ${c.site_tagline}`,
+      description: c.site_tagline,
+      images: [shareImage],
     },
   };
 }

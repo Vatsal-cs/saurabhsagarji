@@ -18,6 +18,7 @@ import { HomeBooksPreview } from './home-books-preview';
 import { HomeMediaPreview } from './home-media-preview';
 import { HomeGalleryPreview } from './home-gallery-preview';
 import { CurtainReveal } from './curtain-reveal';
+import { StructuredData } from './structured-data';
 
 const HOME_KEYS = ['home_hero_headline', 'site_name'] as const;
 
@@ -84,8 +85,21 @@ export default async function HomePage({ params, searchParams }: Props) {
     : '';
   const manshapuranPhoto = manshapuranSection?.photo_1_url ?? manshapuranSection?.photo_2_url ?? null;
 
+  const acharyaSection = aboutSections.find((s) => s.slug === 'saurabh-sagar-ji');
+  const acharyaName = acharyaSection
+    ? lang === 'en' && acharyaSection.title_en
+      ? acharyaSection.title_en
+      : acharyaSection.title_hi
+    : content.site_name;
+  const acharyaDescription = acharyaSection
+    ? lang === 'en' && acharyaSection.intro_en
+      ? acharyaSection.intro_en
+      : acharyaSection.intro_hi
+    : null;
+
   return (
     <main className="min-h-full bg-ivory text-ink">
+      <StructuredData siteName={content.site_name} personName={acharyaName} personDescription={acharyaDescription} />
       {justLaunched === '1' && <CurtainReveal />}
       {/* Hero + marquee + quote share one continuous dark canvas — the grid
           and gold particles span the whole thing instead of stopping at the
