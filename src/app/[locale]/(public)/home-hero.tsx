@@ -16,7 +16,7 @@ const fadeUp: Variants = {
 
 /** "Divine Focus" — a slow camera-focus reveal: the portrait holds soft and
  * de-focused for a beat, then sharpens and grows into a pronounced overshoot,
- * holds there for a couple of seconds, then settles to its resting size. */
+ * holds there for a beat, then settles to its resting size. */
 const photoReveal: Variants = {
   hidden: { opacity: 0, scale: 0.84, filter: 'blur(10px)' },
   show: {
@@ -24,8 +24,8 @@ const photoReveal: Variants = {
     scale: [0.84, 0.84, 1.18, 1.18, 1],
     filter: ['blur(10px)', 'blur(10px)', 'blur(2px)', 'blur(0px)', 'blur(0px)'],
     transition: {
-      duration: 3.6,
-      times: [0, 0.083, 0.306, 0.861, 1],
+      duration: 2.6,
+      times: [0, 0.115, 0.423, 0.808, 1],
       ease: [0.16, 1, 0.3, 1],
     },
   },
@@ -59,7 +59,7 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
   }, []);
 
   return (
-    <div className="relative px-2 pt-9 pb-2 sm:px-6 sm:pt-16 sm:pb-3 min-[900px]:pt-0 min-[900px]:pb-0">
+    <div className="relative px-2 pt-9 pb-2 min-[640px]:px-6 min-[640px]:pt-16 min-[640px]:pb-3 min-[900px]:pt-0 min-[900px]:pb-0">
       {/* Just the guru photo, name, and subtitle now — the side statue portraits moved up
           into HomeMangalacharan so they share a line with the invocation verse instead. A
           plain centered flex column is enough now that there's no side content to align
@@ -77,7 +77,7 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
         animate="show"
         className="mx-auto flex max-w-6xl flex-col items-center"
       >
-        <div className="relative shrink-0 -translate-y-11 drop-shadow-2xl min-[900px]:-translate-y-40">
+        <div className="relative shrink-0 -translate-y-11 drop-shadow-2xl min-[900px]:-translate-y-27">
           {/* The source photo has ~11% dead transparent space below the
               figure (and ~4% above) baked into the file itself — no amount
               of margin/positioning below can close that, since object-contain
@@ -113,7 +113,7 @@ export function HomeHero({ headline, subtitle }: { headline: string; subtitle?: 
           </motion.div>
         </div>
 
-        <div className="mt-0 md:mt-2 min-[900px]:-mt-32">
+        <div className="mt-0 min-[768px]:mt-2 min-[900px]:-mt-14">
           <motion.h1
             variants={fadeUp}
             className="animate-yellow-shimmer mx-auto max-w-3xl text-center text-balance font-serif text-lg leading-tight tracking-tight sm:text-2xl md:text-3xl"
