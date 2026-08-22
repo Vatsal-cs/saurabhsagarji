@@ -26,12 +26,12 @@ export const aboutSectionInputSchema = z.object({
     .or(z.literal('').transform(() => undefined)),
   body_hi: z
     .string()
-    .max(5000)
+    .max(20000)
     .optional()
     .or(z.literal('').transform(() => undefined)),
   body_en: z
     .string()
-    .max(5000)
+    .max(20000)
     .optional()
     .or(z.literal('').transform(() => undefined)),
   display_order: z.number().int().min(0).default(0),
