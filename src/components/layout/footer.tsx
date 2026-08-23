@@ -22,6 +22,7 @@ export async function Footer({ locale }: { locale: string }) {
   const year = new Date().getFullYear();
   const developerName = lang === 'en' ? 'Vatsal Jain' : 'वत्सल जैन';
   const copyright = c.footer_copyright.replace('{year}', String(year));
+  
 
   return (
     <footer className="bg-maroon-900 text-ivory/80">
@@ -30,7 +31,6 @@ export async function Footer({ locale }: { locale: string }) {
         duration={34}
         className="border-b border-gold-500/20 bg-maroon-900/60 py-3 font-serif text-base font-semibold tracking-widest text-gold-400"
       />
-
       <Container>
         <Reveal className="flex flex-col items-center gap-3 py-6">
           <div className="flex items-center gap-3" aria-hidden="true">
@@ -44,8 +44,7 @@ export async function Footer({ locale }: { locale: string }) {
             />
             <span className="h-px w-12 bg-gold-500/50" />
           </div>
-
-          <p className="font-serif text-xl text-ivory">{c.site_name}</p>
+          <p className="w-full text-center font-serif text-xl text-ivory">{c.site_name}</p>
           <p className="font-serif text-sm text-gold-400">{t('tagline')}</p>
 
           <div className="mt-1 flex items-center gap-4">
@@ -68,7 +67,6 @@ export async function Footer({ locale }: { locale: string }) {
             >
               <YoutubeGlyph className="h-[18px] w-[18px]" />
             </a>
-
             {INSTAGRAM_URL && (
               <a
                 href={INSTAGRAM_URL}
@@ -94,7 +92,6 @@ export async function Footer({ locale }: { locale: string }) {
               <span className="font-medium text-ivory/60 transition-colors duration-200 group-hover:text-ivory/85">
                 {t('designedBy')}
               </span>
-
               <span className="font-semibold text-gold-400 underline decoration-gold-400/40 underline-offset-2 transition-colors duration-200 group-hover:text-gold-300 group-hover:decoration-gold-300/70">
                 {developerName}
               </span>
@@ -105,9 +102,7 @@ export async function Footer({ locale }: { locale: string }) {
               <span className="font-semibold text-gold-400">{developerName}</span>
             </span>
           )}
-
           <span className="text-ivory/25">·</span>
-
           <span>{copyright}</span>
         </div>
       </Container>
@@ -134,22 +129,8 @@ function YoutubeGlyph({ className }: { className?: string }) {
 function InstagramGlyph({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <rect
-        x="2"
-        y="2"
-        width="20"
-        height="20"
-        rx="6"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <circle
-        cx="12"
-        cy="12"
-        r="4.2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
+      <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
       <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
     </svg>
   );
