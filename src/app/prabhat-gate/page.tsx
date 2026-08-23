@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isSiteLaunched } from '@/lib/site-content';
 import { LaunchButton } from './launch-button';
+import { TestRevealButton } from './test-reveal-button';
 
 export const metadata = {
   title: 'Dashboard',
@@ -60,9 +61,15 @@ export default async function DashboardPage() {
               ? 'Visitors see the real site.'
               : 'Everyone currently sees a "Coming Soon" page. Pressing Launch makes the real site public for everyone — this can’t be undone.'}
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <LaunchButton launched={launched} />
+            <TestRevealButton />
           </div>
+          <p className="mt-2 text-xs text-neutral-400">
+            &ldquo;Test reveal&rdquo; previews the curtain + sound as many times as you want — it never touches the
+            launch flag. Needs preview access unlocked in this browser first (visit /api/preview?token=...
+            once).
+          </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
