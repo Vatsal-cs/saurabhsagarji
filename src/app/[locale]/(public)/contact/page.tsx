@@ -9,6 +9,9 @@ export const metadata = { title: 'Contact' };
 const PHONE_NUMBER = '9810962288';
 const PHONE_NAME = { hi: 'श्रीमान आशु जैन', en: 'Sh. Ashu Jain' };
 
+const PHONE_NUMBER_2 = '7408509849';
+const PHONE_NAME_2 = { hi: 'श्रीमान मुकेश जैन (बल्ली)', en: 'Sh. Mukesh Jain (Balli)' };
+
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function ContactPage({ params }: Props) {
@@ -37,23 +40,40 @@ export default async function ContactPage({ params }: Props) {
           </Reveal>
 
           {/* Updates on Maharaj Ji */}
-          <Reveal className="mx-auto mt-12 max-w-xl">
+          <Reveal className="mx-auto mt-12 max-w-2xl">
             <div className="rounded-2xl border border-gold-500/20 bg-gradient-to-b from-ivory to-sand/70 p-8 text-center shadow-[0_8px_30px_-12px_rgba(88,10,45,0.25)] ring-1 ring-black/[0.02]">
               <PhoneGlyph className="mx-auto h-8 w-8 text-gold-600" />
               <h2 className="mt-4 font-serif text-xl text-maroon-800 sm:text-2xl">
                 {t('updatesHeading')}
               </h2>
               <p className="mt-2 font-serif-en text-sm text-maroon-800/70">{t('updatesBody')}</p>
-              <a
-                href={`tel:+91${PHONE_NUMBER}`}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
-              >
-                <PhoneGlyph className="h-4 w-4" />
-                {PHONE_NUMBER}
-              </a>
-              <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
-                {locale === 'en' ? PHONE_NAME.en : PHONE_NAME.hi}
-              </p>
+
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="sm:border-r sm:border-gold-500/20 sm:pr-6">
+                  <a
+                    href={`tel:+91${PHONE_NUMBER}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                  >
+                    <PhoneGlyph className="h-4 w-4" />
+                    {PHONE_NUMBER}
+                  </a>
+                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                    {locale === 'en' ? PHONE_NAME.en : PHONE_NAME.hi}
+                  </p>
+                </div>
+                <div className="sm:pl-6">
+                  <a
+                    href={`tel:+91${PHONE_NUMBER_2}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                  >
+                    <PhoneGlyph className="h-4 w-4" />
+                    {PHONE_NUMBER_2}
+                  </a>
+                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                    {locale === 'en' ? PHONE_NAME_2.en : PHONE_NAME_2.hi}
+                  </p>
+                </div>
+              </div>
             </div>
           </Reveal>
 
