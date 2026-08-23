@@ -12,6 +12,9 @@ const PHONE_NAME = { hi: 'श्रीमान आशु जैन', en: 'Sh. A
 const PHONE_NUMBER_2 = '7408509849';
 const PHONE_NAME_2 = { hi: 'श्रीमान मुकेश जैन (बल्ली)', en: 'Sh. Mukesh Jain (Balli)' };
 
+const PHONE_NUMBER_3 = '9810962288';
+const PHONE_NAME_3 = { hi: 'श्रीमान राकेश जैन (टिन्नू)', en: 'Sh. Rakesh Jain (Tinnu)' };
+
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function ContactPage({ params }: Props) {
@@ -48,7 +51,7 @@ export default async function ContactPage({ params }: Props) {
               </h2>
               <p className="mt-2 font-serif-en text-sm text-maroon-800/70">{t('updatesBody')}</p>
 
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div className="sm:border-r sm:border-gold-500/20 sm:pr-6">
                   <a
                     href={`tel:+91${PHONE_NUMBER}`}
@@ -61,7 +64,7 @@ export default async function ContactPage({ params }: Props) {
                     {locale === 'en' ? PHONE_NAME.en : PHONE_NAME.hi}
                   </p>
                 </div>
-                <div className="sm:pl-6">
+                <div className="sm:border-r sm:border-gold-500/20 sm:px-6">
                   <a
                     href={`tel:+91${PHONE_NUMBER_2}`}
                     className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
@@ -71,6 +74,19 @@ export default async function ContactPage({ params }: Props) {
                   </a>
                   <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
                     {locale === 'en' ? PHONE_NAME_2.en : PHONE_NAME_2.hi}
+                  </p>
+                </div>
+
+                <div className="sm:pl-6">
+                  <a
+                    href={`tel:+91${PHONE_NUMBER_3}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                  >
+                    <PhoneGlyph className="h-4 w-4" />
+                    {PHONE_NUMBER_3}
+                  </a>
+                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                    {locale === 'en' ? PHONE_NAME_3.en : PHONE_NAME_3.hi}
                   </p>
                 </div>
               </div>
