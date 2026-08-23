@@ -20,15 +20,15 @@ export async function Footer({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'Footer' });
   const c = await getSiteContentBatch(['site_name', 'footer_copyright'], lang);
   const year = new Date().getFullYear();
-  const copyright = c.footer_copyright.replace('{year}', String(year));
   const developerName = lang === 'en' ? 'Vatsal Jain' : 'वत्सल जैन';
+  const copyright = c.footer_copyright.replace('{year}', String(year));
+  
 
   return (
     <footer className="bg-maroon-900 text-ivory/80">
       <Marquee
         items={[Array(10).fill('॥ ॐ ह्रूं सौरभ सागर गुरुवे नमः ॥   ❁   ').join('')]}
         duration={34}
-        reverse
         className="border-b border-gold-500/20 bg-maroon-900/60 py-3 font-serif text-base font-semibold tracking-widest text-gold-400"
       />
       <Container>
