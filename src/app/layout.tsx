@@ -1,4 +1,5 @@
 import { EB_Garamond, Noto_Serif_Devanagari } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { getLocale } from 'next-intl/server';
 import './globals.css';
 
@@ -34,6 +35,7 @@ export default async function RootLayout({
     <html lang={locale} className={`${ebGaramond.variable} ${notoSerifDev.variable}`}>
       <body className="flex min-h-screen flex-col bg-ivory text-neutral-900 antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
