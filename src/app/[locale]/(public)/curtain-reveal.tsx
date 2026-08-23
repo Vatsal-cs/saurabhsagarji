@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { FlowerShower } from './flower-shower';
 
 /**
  * One-time launch moment: two curtain panels cover the homepage, hold for a
@@ -66,6 +67,7 @@ function CurtainPanel({ side, x }: { side: 'left' | 'right'; x: string }) {
 export function CurtainReveal() {
   const [open, setOpen] = useState(false);
   const [curtainVisible, setCurtainVisible] = useState(true);
+  const [flowersVisible, setFlowersVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -75,6 +77,7 @@ export function CurtainReveal() {
 
     const openTimer = setTimeout(() => {
       setOpen(true);
+      setFlowersVisible(true);
       // Autoplay-with-sound only works when browsers still consider this
       // "connected" to the click that led here — never treat a rejection as
       // a real error, since some browsers/devices will legitimately block
@@ -82,15 +85,21 @@ export function CurtainReveal() {
       audioRef.current?.play().catch(() => {});
     }, 500);
     const hideCurtainTimer = setTimeout(() => setCurtainVisible(false), 500 + OPEN_DURATION_S * 1000 + 300);
+    // Longer than the curtain — flowers keep falling onto the fully-revealed
+    // page for a few seconds after the curtain itself is gone, covering the
+    // slowest flower's own delay + fall duration with room to spare.
+    const hideFlowersTimer = setTimeout(() => setFlowersVisible(false), 500 + 10000);
     return () => {
       clearTimeout(openTimer);
       clearTimeout(hideCurtainTimer);
+      clearTimeout(hideFlowersTimer);
     };
   }, []);
 
   return (
     <>
       <audio ref={audioRef} src="/launch-sound.m4a" preload="auto" />
+      {flowersVisible && <FlowerShower />}
       {curtainVisible && (
         <div className="pointer-events-none fixed inset-0 z-[200] flex" aria-hidden="true">
           <CurtainPanel side="left" x={open ? '-100%' : '0%'} />

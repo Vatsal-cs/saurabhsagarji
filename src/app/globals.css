@@ -179,6 +179,26 @@ html {
   .animate-marquee-bulb { animation: none; opacity: 0.5; }
 }
 
+/* One flower in the launch-moment shower (see FlowerShower) — falls from
+   above the viewport to below it once, tumbling as it goes. Each flower's
+   own duration/delay/horizontal position comes from inline styles, so this
+   one keyframe drives all of them; a one-shot animation (not infinite),
+   since the whole shower is mounted only for the few seconds of the reveal
+   and then removed outright. */
+@keyframes flower-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+  8% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+.animate-flower-fall {
+  animation-name: flower-fall;
+  animation-timing-function: linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-flower-fall { animation: none; opacity: 0; }
+}
+
 /* One bar of a "now playing" equalizer — bars run the same bounce with a
    per-bar delay/duration so together they read as sound pulsing, in place of
    a literal broadcast/live-TV cue that doesn't fit devotional audio. */
