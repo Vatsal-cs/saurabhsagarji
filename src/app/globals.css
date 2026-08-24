@@ -213,4 +213,3 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .animate-eq-bar { animation: none; transform: scaleY(0.6); }
 }
-

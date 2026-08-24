@@ -15,6 +15,9 @@ const PHONE_NAME_2 = { hi: 'श्रीमान मुकेश जैन (ब
 const PHONE_NUMBER_3 = '7011829602';
 const PHONE_NAME_3 = { hi: 'श्रीमान राकेश जैन (टिन्नू)', en: 'Sh. Rakesh Jain (Tinnu)' };
 
+const WHATSAPP_NUMBER = '9625636303';
+const WHATSAPP_NAME = { hi: 'वत्सल जैन', en: 'Vatsal Jain' };
+
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function ContactPage({ params }: Props) {
@@ -89,6 +92,26 @@ export default async function ContactPage({ params }: Props) {
                     {locale === 'en' ? PHONE_NAME_3.en : PHONE_NAME_3.hi}
                   </p>
                 </div>
+                <div className="col-span-full mt-2 border-t border-gold-500/20 pt-6 text-center">
+                  <p className="font-serif text-base text-maroon-800/80">
+                    {locale === 'en'
+                      ? 'For anything related to the Website or Acharya Shri, feel free to contact on WhatsApp:'
+                      : 'वेबसाइट या आचार्य श्री से संबंधित किसी भी जानकारी हेतु व्हाट्सऐप पर संपर्क करें:'}
+                  </p>
+
+                  <a
+                    href={`https://wa.me/91${WHATSAPP_NUMBER}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                  >
+                    {WHATSAPP_NUMBER}
+                  </a>
+
+                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                    {locale === 'en' ? WHATSAPP_NAME.en : WHATSAPP_NAME.hi}
+                  </p>
+                </div>               
               </div>
             </div>
           </Reveal>
