@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
+import { getProxyUrl } from '@/lib/storage-url';
 
 type Section = Database['public']['Tables']['about_sections']['Row'];
 
@@ -35,8 +36,8 @@ function toPublic(row: Section): PublicAboutSection {
     intro_en: row.intro_en,
     body_hi: row.body_hi,
     body_en: row.body_en,
-    photo_1_url: row.photo_1_url,
-    photo_2_url: row.photo_2_url,
+    photo_1_url: getProxyUrl(row.photo_1_url),
+    photo_2_url: getProxyUrl(row.photo_2_url),
     display_order: row.display_order,
   };
 }

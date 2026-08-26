@@ -14454,7 +14454,10 @@ initCom(PDFViewerApplication);
   // disabling this check outright, keeps the actual security property this
   // check exists for: this viewer still can't be used as an open proxy to
   // render an arbitrary attacker-supplied URL under this site's domain.
-  const ALLOWED_FILE_ORIGINS = ["https://yvmrivgwbyzjpynnmust.supabase.co"];
+  const ALLOWED_FILE_ORIGINS = [
+  "https://yvmrivgwbyzjpynnmust.supabase.co",
+  "https://saurabhsagarji-media-proxy.vatsalj05.workers.dev",
+];
   var validateFileURL = function (file) {
     if (!file) {
       return;

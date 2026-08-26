@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
+import { getProxyUrl } from '@/lib/storage-url';
 
 type Album = Database['public']['Tables']['gallery_albums']['Row'];
 type Photo = Database['public']['Tables']['gallery_photos']['Row'];
@@ -33,7 +34,7 @@ function toPublicAlbum(row: Album): PublicAlbum {
     title_en: row.title_en,
     description_hi: row.description_hi,
     description_en: row.description_en,
-    cover_image_url: row.cover_image_url,
+    cover_image_url: getProxyUrl(row.cover_image_url),
     album_date: row.album_date,
   };
 }
@@ -41,7 +42,7 @@ function toPublicAlbum(row: Album): PublicAlbum {
 function toPublicPhoto(row: Photo): PublicPhoto {
   return {
     id: row.id,
-    image_url: row.image_url,
+    image_url: getProxyUrl(row.image_url),
     caption_hi: row.caption_hi,
     caption_en: row.caption_en,
     alt_text: row.alt_text,

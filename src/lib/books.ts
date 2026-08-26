@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { createStaticClient } from '@/lib/supabase/static';
+import { getProxyUrl } from '@/lib/storage-url';
 
 /**
  * Row shape from the `books` table.
@@ -40,11 +41,11 @@ function toPublicBook(row: Book): PublicBook {
     title_en: row.title_en,
     description_hi: row.description_hi,
     description_en: row.description_en,
-    cover_image_url: row.cover_image_url,
+    cover_image_url: getProxyUrl(row.cover_image_url),
     purchase_url: row.purchase_url,
-    download_url: row.download_url,
-    preview_pdf_url: row.preview_pdf_url,
-    pdf_url: row.pdf_url,
+    download_url: getProxyUrl(row.download_url),
+    preview_pdf_url: getProxyUrl(row.preview_pdf_url),
+    pdf_url: getProxyUrl(row.pdf_url),
     publication_year: row.publication_year,
     published_at: row.published_at,
     display_order: row.display_order,
@@ -69,9 +70,6 @@ export const getPublishedBooks = unstable_cache(
       .order('display_order', { ascending: true });
 
     if (error) {
-      // In prod we'd log to Sentry / an observability tool.
-      // For now, surface it in server logs and return an empty list
-      // so the page still renders (soft failure).
       console.error('[getPublishedBooks]', error);
       return [];
     }
@@ -111,21 +109,20 @@ export const getHomePinnedBooks = unstable_cache(
  * Build-time variant of getPublishedBooks that doesn't touch cookies.
  * Use ONLY from generateStaticParams, sitemap, or similar build-only paths.
  */
-
 export async function getPublishedBooksStatic(): Promise<PublicBook[]> {
-    const supabase = createStaticClient();
-    const { data, error } = await supabase
-      .from('books')
-      .select('*')
-      .eq('is_published', true)
-      .order('display_order', { ascending: true });
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from('books')
+    .select('*')
+    .eq('is_published', true)
+    .order('display_order', { ascending: true });
 
-    if (error) {
-      console.error('[getPublishedBooksStatic]', error);
-      return [];
-    }
-  
-    return (data ?? []).map(toPublicBook);
+  if (error) {
+    console.error('[getPublishedBooksStatic]', error);
+    return [];
+  }
+
+  return (data ?? []).map(toPublicBook);
 }
 
 /**
@@ -140,7 +137,7 @@ export const getPublishedBookBySlug = unstable_cache(
       .select('*')
       .eq('slug', slug)
       .eq('is_published', true)
-      .maybeSingle(); // maybeSingle: 0 or 1 rows, never errors on 0 (unlike single)
+      .maybeSingle();
 
     if (error) {
       console.error('[getPublishedBookBySlug]', error);
@@ -159,57 +156,49 @@ export const getPublishedBookBySlug = unstable_cache(
  * If a non-admin somehow calls this, they get an empty list (no error).
  */
 export async function getAllBooksForAdmin(): Promise<Book[]> {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('books')
-      .select('*')
-      .order('display_order', { ascending: true });
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('books')
+    .select('*')
+    .order('display_order', { ascending: true });
 
-    if (error) {
-      console.error('[getAllBooksForAdmin]', error);
-      return [];
-    }
-    return data ?? [];
+  if (error) {
+    console.error('[getAllBooksForAdmin]', error);
+    return [];
   }
-  
-  /**
-   * Fetch a single book by id, published or draft, for admin edit views.
-   */
-  export async function getBookByIdForAdmin(id: string): Promise<Book | null> {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('books')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-  
-    if (error) {
-      console.error('[getBookByIdForAdmin]', error);
-      return null;
-    }
-    return data;
-  }
-
-/**
- * Public, permanent URL for a PDF in the (now public) book-pdfs bucket. Same
- * path every time a given book is read, unlike getSignedPdfUrl — that's what
- * lets the reader fetch straight from Supabase's storage domain instead of
- * proxying every chunk through our own server, so repeat requests for the
- * same file can actually be cached instead of hitting Supabase origin fresh
- * on every single range request.
- *
- * If pdfPath is already a full URL (e.g. externally hosted), returns it unchanged.
- */
-export function getPublicPdfUrl(pdfPath: string): string {
-  if (pdfPath.startsWith('http')) return pdfPath;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/book-pdfs/${pdfPath}`;
+  return data ?? [];
 }
 
 /**
- * Same public URL, but with Supabase's `?download=` param so the browser
- * forces a "Save As" with a friendly filename instead of just opening the
- * PDF — the direct-link equivalent of what the old proxy route's
- * Content-Disposition header did, without a round trip through our server.
+ * Fetch a single book by id, published or draft, for admin edit views.
+ */
+export async function getBookByIdForAdmin(id: string): Promise<Book | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('books')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[getBookByIdForAdmin]', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Public, permanent URL for a PDF in the (now public) book-pdfs bucket.
+ * Routes through the proxy domain to eliminate cached egress on Supabase.
+ */
+export function getPublicPdfUrl(pdfPath: string): string {
+  if (pdfPath.startsWith('http')) return getProxyUrl(pdfPath);
+  const directUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/book-pdfs/${pdfPath}`;
+  return getProxyUrl(directUrl);
+}
+
+/**
+ * Public download URL with Supabase's `?download=` param, routed via proxy.
  */
 export function getPublicPdfDownloadUrl(
   pdfPath: string,
@@ -217,7 +206,6 @@ export function getPublicPdfDownloadUrl(
   titleEn: string | null
 ): string {
   const url = getPublicPdfUrl(pdfPath);
-  if (pdfPath.startsWith('http')) return url; // externally hosted — leave as-is
 
   const base = (titleEn ?? slug)
     .toLowerCase()

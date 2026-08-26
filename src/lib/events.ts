@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createStaticClient } from '@/lib/supabase/static';
 import type { Database } from '@/types/database';
+import { getProxyUrl } from '@/lib/storage-url';
 
 type Event = Database['public']['Tables']['events']['Row'];
 
@@ -29,7 +30,7 @@ function toPublic(row: Event): PublicEvent {
     title_en: row.title_en,
     description_hi: row.description_hi,
     description_en: row.description_en,
-    cover_image_url: row.cover_image_url,
+    cover_image_url: getProxyUrl(row.cover_image_url),
     venue_name: row.venue_name,
     venue_address: row.venue_address,
     venue_map_url: row.venue_map_url,
