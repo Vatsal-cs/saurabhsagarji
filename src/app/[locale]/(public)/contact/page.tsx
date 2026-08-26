@@ -95,8 +95,8 @@ export default async function ContactPage({ params }: Props) {
                 <div className="col-span-full mt-2 border-t border-gold-500/20 pt-6 text-center">
                   <p className="font-serif text-base text-maroon-800/80">
                     {locale === 'en'
-                      ? 'For anything related to the Website or Acharya Shri, feel free to contact on WhatsApp:'
-                      : 'वेबसाइट या आचार्य श्री से संबंधित किसी भी जानकारी हेतु व्हाट्सऐप पर संपर्क करें:'}
+                      ? 'For anything related to the Website feel free to contact on WhatsApp:'
+                      : 'वेबसाइट से संबंधित किसी भी जानकारी हेतु व्हाट्सऐप पर संपर्क करें:'}
                   </p>
 
                   <a
