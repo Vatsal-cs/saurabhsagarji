@@ -65,7 +65,7 @@ export default async function BooksPage({ params }: Props) {
               {PUBLICATIONS_CONTACT_NUMBER}
             </a>
             <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
-              {locale === 'en' ? 'Sh. Manoj Jain' : 'श्री मनोज जैन'}
+              {locale === 'en' ? 'Sh. Manoj Jain' : 'श्रीमान मनोज जैन'}
             </p>
           </div>
         </div>
