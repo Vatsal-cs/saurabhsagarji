@@ -78,7 +78,8 @@
     "donationsBody": "Scan to donate directly via UPI, or use the bank details shown on each card.",
     "qrJinalayaLabel": "Shri Manshapurn Mahavir Jinalaya",
     "qrHospitalLabel": "Jeevan Asha Hospital",
-    "qrSaurabhanchalLabel": "Saurabhanchal Prakashan"
+    "qrSaurabhanchalLabel": "Saurabhanchal Prakashan",
+    "qrGauSevaLabel": "Saurabh Sagar Cow Service/Junior High School"
   },
   "NotFound": {
     "title": "Page not found",

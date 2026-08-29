@@ -78,7 +78,8 @@
     "donationsBody": "यूपीआई से सीधे दान करने हेतु स्कैन करें, या कार्ड पर दिए गए बैंक विवरण का उपयोग करें।",
     "qrJinalayaLabel": "श्री मंशापूर्ण महावीर जिनालय",
     "qrHospitalLabel": "जीवन आशा हॉस्पिटल",
-    "qrSaurabhanchalLabel": "सौरभांचल प्रकाशन"
+    "qrSaurabhanchalLabel": "सौरभांचल प्रकाशन",
+    "qrGauSevaLabel": "सौरभ सागर गौ सेवा जूनियर हाई स्कूल"
   },
   "NotFound": {
     "title": "पृष्ठ नहीं मिला",

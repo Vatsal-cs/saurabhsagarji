@@ -6,8 +6,11 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
 
 export const metadata = { title: 'Contact' };
 
-const PHONE_NUMBER = '9810962288';
-const PHONE_NAME = { hi: 'श्रीमान आशु जैन', en: 'Sh. Ashu Jain' };
+const PHONE_NUMBER = '9411676234';
+const PHONE_NAME = { hi: 'पं◦ श्रीमान संदीप जैन (सजल)', en: 'Pt. Sh. Sandeep Jain (Sajal)' };
+
+const PHONE_NUMBER_0 = '9810962288';
+const PHONE_NAME_0 = { hi: 'श्रीमान आशु जैन', en: 'Sh. Ashu Jain' };
 
 const PHONE_NUMBER_2 = '7408509849';
 const PHONE_NAME_2 = { hi: 'श्रीमान मुकेश जैन (बल्ली)', en: 'Sh. Mukesh Jain (Balli)' };
@@ -46,7 +49,7 @@ export default async function ContactPage({ params }: Props) {
           </Reveal>
 
           {/* Updates on Maharaj Ji */}
-          <Reveal className="mx-auto mt-12 max-w-2xl">
+          <Reveal className="mx-auto mt-12 max-w-4xl">
             <div className="rounded-2xl border border-gold-500/20 bg-gradient-to-b from-ivory to-sand/70 p-8 text-center shadow-[0_8px_30px_-12px_rgba(88,10,45,0.25)] ring-1 ring-black/[0.02]">
               <PhoneGlyph className="mx-auto h-8 w-8 text-gold-600" />
               <h2 className="mt-4 font-serif text-xl text-maroon-800 sm:text-2xl">
@@ -54,41 +57,53 @@ export default async function ContactPage({ params }: Props) {
               </h2>
               <p className="mt-2 font-serif-en text-sm text-maroon-800/70">{t('updatesBody')}</p>
 
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <div className="sm:border-r sm:border-gold-500/20 sm:pr-6">
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4 sm:gap-3">
+                <div className="sm:border-r sm:border-gold-500/20 sm:pr-3">
+                  <a
+                    href={`tel:+91${PHONE_NUMBER_0}`}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-maroon-800 px-4 py-2 font-serif-en text-sm font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                  >
+                    <PhoneGlyph className="h-3.5 w-3.5" />
+                    {PHONE_NUMBER_0}
+                  </a>
+                  <p className="mt-2 font-serif text-sm font-semibold text-maroon-700">
+                    {locale === 'en' ? PHONE_NAME_0.en : PHONE_NAME_0.hi}
+                  </p>
+                </div>
+                <div className="sm:border-r sm:border-gold-500/20 sm:px-3">
                   <a
                     href={`tel:+91${PHONE_NUMBER}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-maroon-800 px-4 py-2 font-serif-en text-sm font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
                   >
-                    <PhoneGlyph className="h-4 w-4" />
+                    <PhoneGlyph className="h-3.5 w-3.5" />
                     {PHONE_NUMBER}
                   </a>
-                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                  <p className="mt-2 font-serif text-sm font-semibold text-maroon-700">
                     {locale === 'en' ? PHONE_NAME.en : PHONE_NAME.hi}
                   </p>
                 </div>
-                <div className="sm:border-r sm:border-gold-500/20 sm:px-6">
+                <div className="sm:border-r sm:border-gold-500/20 sm:px-3">
                   <a
                     href={`tel:+91${PHONE_NUMBER_2}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-maroon-800 px-4 py-2 font-serif-en text-sm font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
                   >
-                    <PhoneGlyph className="h-4 w-4" />
+                    <PhoneGlyph className="h-3.5 w-3.5" />
                     {PHONE_NUMBER_2}
                   </a>
-                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                  <p className="mt-2 font-serif text-sm font-semibold text-maroon-700">
                     {locale === 'en' ? PHONE_NAME_2.en : PHONE_NAME_2.hi}
                   </p>
                 </div>
 
-                <div className="sm:pl-6">
+                <div className="sm:pl-3">
                   <a
                     href={`tel:+91${PHONE_NUMBER_3}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-maroon-800 px-6 py-3 font-serif-en text-base font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-maroon-800 px-4 py-2 font-serif-en text-sm font-medium text-ivory shadow-md transition-colors hover:bg-maroon-900"
                   >
-                    <PhoneGlyph className="h-4 w-4" />
+                    <PhoneGlyph className="h-3.5 w-3.5" />
                     {PHONE_NUMBER_3}
                   </a>
-                  <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
+                  <p className="mt-2 font-serif text-sm font-semibold text-maroon-700">
                     {locale === 'en' ? PHONE_NAME_3.en : PHONE_NAME_3.hi}
                   </p>
                 </div>
@@ -139,6 +154,9 @@ export default async function ContactPage({ params }: Props) {
                 </StaggerItem>
                 <StaggerItem>
                   <QrCard src="/donation-qr-saurabhanchal.png" label={t('qrSaurabhanchalLabel')} />
+                </StaggerItem>
+                <StaggerItem>
+                  <QrCard src="/donation-qr-gauseva.jpeg" label={t('qrGauSevaLabel')} />
                 </StaggerItem>
               </div>
             </StaggerGroup>
