@@ -57,7 +57,7 @@ export default async function ContactPage({ params }: Props) {
               </h2>
               <p className="mt-2 font-serif-en text-sm text-maroon-800/70">{t('updatesBody')}</p>
 
-              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4 sm:gap-3">
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4 sm:gap-x-0 sm:gap-y-0">
                 <div className="sm:border-r sm:border-gold-500/20 sm:pr-3">
                   <a
                     href={`tel:+91${PHONE_NUMBER_0}`}
@@ -145,18 +145,20 @@ export default async function ContactPage({ params }: Props) {
                 column dead-space-padded up to Jinalaya's height before Saurabhanchal
                 could start underneath it. */}
             <StaggerGroup className="mx-auto mt-10 grid max-w-4xl items-start gap-8 sm:grid-cols-2" stagger={0.12}>
-              <StaggerItem>
-                <QrCard src="/donation-qr-jinalaya.jpeg" label={t('qrJinalayaLabel')} />
-              </StaggerItem>
+              <div className="flex flex-col gap-8">
+                <StaggerItem>
+                  <QrCard src="/donation-qr-jinalaya.jpeg" label={t('qrJinalayaLabel')} />
+                </StaggerItem>
+                <StaggerItem>
+                  <QrCard src="/donation-qr-gauseva.jpeg" label={t('qrGauSevaLabel')} />
+                </StaggerItem>
+              </div>
               <div className="flex flex-col gap-8">
                 <StaggerItem>
                   <QrCard src="/donation-qr-hospital.jpeg" label={t('qrHospitalLabel')} />
                 </StaggerItem>
                 <StaggerItem>
                   <QrCard src="/donation-qr-saurabhanchal.png" label={t('qrSaurabhanchalLabel')} />
-                </StaggerItem>
-                <StaggerItem>
-                  <QrCard src="/donation-qr-gauseva.jpeg" label={t('qrGauSevaLabel')} />
                 </StaggerItem>
               </div>
             </StaggerGroup>

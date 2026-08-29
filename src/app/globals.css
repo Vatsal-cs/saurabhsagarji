@@ -32,9 +32,16 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Give Devanagari text a slightly taller line height — script needs vertical room */
+/* Give Devanagari text a slightly taller line height — script needs vertical room
+   for matras (vowel signs) that sit above the letter, e.g. the ि in दिगम्बराचार्य.
+   !important is deliberate: dozens of components apply leading-tight/leading-snug/
+   leading-none for visual rhythm, and since an element's own explicit line-height
+   always overrides an inherited one (regardless of selector specificity), any of
+   those utilities was silently clipping matras across the site. This makes the
+   protection unconditional for Hindi text — English text (lang="en") is untouched
+   and free to use whatever leading utility it wants. */
 :lang(hi), [lang="hi"] {
-  line-height: 1.7;
+  line-height: 1.7 !important;
 }
 
 /* Hides the scrollbar on drag-to-scroll strips (book shelf, gallery tabs) while keeping
