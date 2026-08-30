@@ -54,8 +54,8 @@ export default async function BooksPage({ params }: Props) {
           <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-gold-500/20 bg-gradient-to-b from-ivory to-sand/70 px-6 py-6 text-center shadow-[0_8px_30px_-12px_rgba(88,10,45,0.25)] ring-1 ring-black/[0.02] sm:px-8">
             <p className="font-serif text-base text-maroon-800/80">
               {locale === 'en'
-                ? 'For information related to Publications, contact:'
-                : 'प्रकाशन संबंधित जानकारी हेतु संपर्क करें:'}
+                ? 'For Publication & Book Requests, Please Contact :'
+                : 'प्रकाशन एवं पुस्तक प्राप्ति हेतु संपर्क करें :'}
             </p>
             <a
               href={`tel:+91${PUBLICATIONS_CONTACT_NUMBER}`}
@@ -65,7 +65,7 @@ export default async function BooksPage({ params }: Props) {
               {PUBLICATIONS_CONTACT_NUMBER}
             </a>
             <p className="mt-3 font-serif text-base font-semibold text-maroon-700">
-              {locale === 'en' ? 'Sh. Manoj Jain' : 'श्रीमान मनोज जैन'}
+              {locale === 'en' ? 'Sh. Manoj Kumar Jain' : 'श्रीमान मनोज कुमार जैन'}
             </p>
           </div>
         </div>
