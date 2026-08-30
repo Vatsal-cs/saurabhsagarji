@@ -6,14 +6,14 @@ import { StaggerGroup, StaggerItem } from '@/components/motion/stagger';
 
 export const metadata = { title: 'Contact' };
 
-const PHONE_NUMBER = '9411676234';
-const PHONE_NAME = { hi: 'पं◦ श्रीमान संदीप जैन (सजल)', en: 'Pt. Sh. Sandeep Jain (Sajal)' };
+const PHONE_NUMBER_2 = '9411676234';
+const PHONE_NAME_2 = { hi: 'पं◦ श्रीमान संदीप जैन (सजल)', en: 'Pt. Sh. Sandeep Jain (Sajal)' };
 
 const PHONE_NUMBER_0 = '9810962288';
 const PHONE_NAME_0 = { hi: 'श्रीमान आशु जैन', en: 'Sh. Ashu Jain' };
 
-const PHONE_NUMBER_2 = '7408509849';
-const PHONE_NAME_2 = { hi: 'श्रीमान मुकेश जैन (बल्ली)', en: 'Sh. Mukesh Jain (Balli)' };
+const PHONE_NUMBER = '7408509849';
+const PHONE_NAME = { hi: 'श्रीमान मुकेश जैन (बल्ली)', en: 'Sh. Mukesh Jain (Balli)' };
 
 const PHONE_NUMBER_3 = '7011829602';
 const PHONE_NAME_3 = { hi: 'श्रीमान राकेश जैन (टिन्नू)', en: 'Sh. Rakesh Jain (Tinnu)' };
